@@ -13,4 +13,16 @@ defmodule BankWeb.ErrorView do
   def template_not_found(template, _assigns) do
     %{errors: %{detail: Phoenix.Controller.status_message_from_template(template)}}
   end
+
+  def render("generic_error.json", %{body: body}) do
+    body
+  end
+
+  def render("404.json", _) do
+    %{message: "not_found"}
+  end
+
+  def render("500.json", _assigns) do
+    %{message: "internal_server_error"}
+  end
 end
