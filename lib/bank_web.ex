@@ -20,6 +20,7 @@ defmodule BankWeb do
   def controller do
     quote do
       use Phoenix.Controller, namespace: BankWeb
+      use BankWeb.RequestParams
 
       import Plug.Conn
       import BankWeb.Gettext
