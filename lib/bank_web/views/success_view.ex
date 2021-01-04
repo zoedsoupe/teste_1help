@@ -5,4 +5,3 @@ defmodule BankWeb.SuccessView do
     body
   end
 end
-
