@@ -15,13 +15,17 @@ defmodule Bank.Schema do
       @foreign_key_type :binary_id
 
       if unquote(opts[:expose]) do
-        def exposed_fields, do: @exposed_fields
+        @exposed Module.get_attribute(__MODULE__, :exposed_fields, [])
+        @sortings Module.get_attribute(__MODULE__, :simple_sortings, [])
+        @filters Module.get_attribute(__MODULE__, :simple_filters, [])
+
+        def exposed_fields, do: @exposed
 
         defp define_columns(query, nil), do: query
 
         defp define_columns(query) do
           query
-          |> select([x], map(x, ^@exposed_fields))
+          |> select([x], map(x, ^@exposed))
         end
       end
 
@@ -53,12 +57,12 @@ defmodule Bank.Schema do
       defp apply_filters(query, nil), do: query
       defp apply_filters(query, []), do: query
 
-      defp apply_filters(query, [{field, :invalid} | _rest]) when field in @simple_filters do
+      defp apply_filters(query, [{field, :invalid} | _rest]) when field in @filters do
         query
         |> where([x], false)
       end
 
-      defp apply_filters(query, [{field, value} | rest]) when field in @simple_filters do
+      defp apply_filters(query, [{field, value} | rest]) when field in @filters do
         query
         |> where([x], field(x, ^field) == ^value)
         |> apply_filters(rest)
@@ -67,7 +71,7 @@ defmodule Bank.Schema do
       defp apply_filters(query, [_ | rest]), do: apply_filters(query, rest)
 
       # Sorting
-      defp put_sort(query, [{order, field}]) when field in @simple_sortings do
+      defp put_sort(query, [{order, field}]) when field in @sortings do
         query
         |> order_by([a], {^order, ^field})
       end
