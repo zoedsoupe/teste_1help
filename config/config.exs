@@ -50,6 +50,11 @@ if Mix.env() != :prod do
     ]
 end
 
+# Mailing
+config :bank, Bank.Mailing,
+  adapter: Bamboo.LocalAdapter,
+  open_email_in_browser_url: "http://localhost:4000/sent_emails"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
