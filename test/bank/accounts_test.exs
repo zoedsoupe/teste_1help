@@ -3,6 +3,8 @@ defmodule Bank.AccountsTest do
 
   alias Bank.Accounts
 
+  import Bank.Factory
+
   describe "users" do
     alias Bank.Accounts.User
 
@@ -10,41 +12,33 @@ defmodule Bank.AccountsTest do
       balance: 42,
       cnpj: "23.658.356/0001-12",
       confirmed?: true,
-      email: "some email",
+      mobile: "(22)12345-6789",
+      email: "x@gmail.com",
       first_name: "some first_name",
       last_name: "some last_name",
-      new_password: "some new_password",
-      new_password_confirmation: "some new_password_confirmation",
-      password: "some password",
-      password_confirmation: "some password_confirmation",
-      password_hash: "some password_hash"
+      password: "12345678910",
+      password_confirmation: "12345678910"
     }
     @update_attrs %{
       balance: 43,
       cnpj: "84.366.626/0001-06",
-      confirmed?: false,
-      email: "some updated email",
+      mobile: "(22)12345-9876",
+      email: "y@gmail.com",
       first_name: "some updated first_name",
       last_name: "some updated last_name",
-      new_password: "some updated new_password",
-      new_password_confirmation: "some updated new_password_confirmation",
-      password: "some updated password",
-      password_confirmation: "some updated password_confirmation",
-      password_hash: "some updated password_hash"
+      password: "12345678911",
+      password_confirmation: "12345678911"
     }
     @invalid_attrs %{
       balance: nil,
       cnpj: nil,
-      confirmed?: nil,
       cpf: nil,
+      mobile: nil,
       email: nil,
       first_name: nil,
       last_name: nil,
-      new_password: nil,
-      new_password_confirmation: nil,
       password: nil,
-      password_confirmation: nil,
-      password_hash: nil
+      password_confirmation: nil
     }
 
     def user_fixture(attrs \\ %{}) do
@@ -57,29 +51,34 @@ defmodule Bank.AccountsTest do
     end
 
     test "list_users/0 returns all users" do
-      user = user_fixture()
-      assert Accounts.list_users() == [user]
+      users = insert_list(8, :user)
+
+      found_users = Accounts.list_users()
+
+      assert is_list(Accounts.list_users(found_users))
+      assert = length(users) == length(found_users)
     end
 
     test "get_user!/1 returns the user with given id" do
       user = user_fixture()
-      assert Accounts.get_user!(user.id) == user
+
+      found_user = Accounts.get_user!(user.id)
+
+      assert found_user.balance == user.balance
+      assert found_user.cnpj == user.cnpj
+      assert found_user.email == user.email
+      assert found_user.first_name == user.first_name
+      assert found_user.last_name == user.last_name
     end
 
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
       assert user.balance == 42
-      assert user.cnpj == "some cnpj"
-      assert user.confirmed? == true
-      assert user.cpf == "some cpf"
-      assert user.email == "some email"
-      assert user.first_name == "some first_name"
-      assert user.last_name == "some last_name"
-      assert user.new_password == "some new_password"
-      assert user.new_password_confirmation == "some new_password_confirmation"
-      assert user.password == "some password"
-      assert user.password_confirmation == "some password_confirmation"
-      assert user.password_hash == "some password_hash"
+      assert user.cnpj == "23.658.356/0001-12"
+      assert user.email == "x@gmail.com"
+      assert user.first_name == "Some First_name"
+      assert user.last_name == "Some Last_name"
+      assert user.password_hash != "some password_hash"
     end
 
     test "create_user/1 with invalid data returns error changeset" do
@@ -90,23 +89,25 @@ defmodule Bank.AccountsTest do
       user = user_fixture()
       assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
       assert user.balance == 43
-      assert user.cnpj == "some updated cnpj"
-      assert user.confirmed? == false
-      assert user.cpf == "some updated cpf"
-      assert user.email == "some updated email"
-      assert user.first_name == "some updated first_name"
-      assert user.last_name == "some updated last_name"
-      assert user.new_password == "some updated new_password"
-      assert user.new_password_confirmation == "some updated new_password_confirmation"
-      assert user.password == "some updated password"
-      assert user.password_confirmation == "some updated password_confirmation"
-      assert user.password_hash == "some updated password_hash"
+      assert user.cnpj == "84.366.626/0001-06"
+      assert user.email == "y@gmail.com"
+      assert user.first_name == "Some Updated First_name"
+      assert user.last_name == "Some Updated Last_name"
+      assert user.password_hash != "some updated password_hash"
     end
 
     test "update_user/2 with invalid data returns error changeset" do
       user = user_fixture()
+
       assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @invalid_attrs)
-      assert user == Accounts.get_user!(user.id)
+
+      found_user = Accounts.get_user!(user.id)
+
+      assert found_user.balance == user.balance
+      assert found_user.cnpj == user.cnpj
+      assert found_user.email == user.email
+      assert found_user.first_name == user.first_name
+      assert found_user.last_name == user.last_name
     end
 
     test "delete_user/1 deletes the user" do

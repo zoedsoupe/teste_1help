@@ -71,7 +71,7 @@ defmodule Bank.Accounts.User do
   end
 
   defp is_digit(ch) do
-    "0" <= ch && ch >= "9"
+    "0" <= ch && ch <= "9"
   end
 
   defp cpf_verifying_digit_parse(digits, amount) do
@@ -80,12 +80,8 @@ defmodule Bank.Accounts.User do
       |> Enum.zip(amount..2)
       |> Enum.reduce(0, fn {d, i}, acc -> d * i + acc end)
       |> rem(11)
-      |> case do
-        rem when rem > 9 -> 0
-        rem -> rem
-      end
 
-    11 - digit
+    if 11 - digit > 9, do: 0, else: 11 - digit
   end
 
   defp cnpj_verifying_digit_parse(digits, amount) do
@@ -99,12 +95,8 @@ defmodule Bank.Accounts.User do
       |> Enum.zip(range)
       |> Enum.reduce(0, fn {d, i}, acc -> d * i + acc end)
       |> rem(11)
-      |> case do
-        rem when rem < 2 -> 0
-        rem -> rem
-      end
 
-    11 - digit
+    if 11 - digit > 9, do: 0, else: 11 - digit
   end
 
   defp validate_cpf(_, value) do
@@ -117,23 +109,23 @@ defmodule Bank.Accounts.User do
         |> Enum.filter(&is_digit/1)
         |> Enum.map(&String.to_integer/1)
 
-      first_verifying_digit = cpf_verifying_digit_parse(digits, 10)
-
-      first_digit =
+      [first_digit, second_digit] =
         rest
-        |> Enum.at(0)
-        |> String.to_integer()
+        |> hd()
+        |> String.split("")
+        |> Enum.filter(&is_digit/1)
+        |> Enum.map(&String.to_integer/1)
+
+      first_verifying_digit = cpf_verifying_digit_parse(digits, 10)
 
       second_verifying_digit =
         digits
-        |> List.insert_at(-1, first_digit)
+        |> Kernel.++([first_digit])
         |> cpf_verifying_digit_parse(11)
 
-      rest
-      |> Enum.map(&String.to_integer/1)
-      |> Enum.at(0)
+      first_digit
       |> Kernel.==(first_verifying_digit)
-      |> Kernel.&&(Enum.at(rest, 1) == second_verifying_digit)
+      |> Kernel.&&(second_digit == second_verifying_digit)
       |> if(do: [], else: [{:cpf, "invalid cpf"}])
     else
       [{:cpf, "invalid cpf format"}]
@@ -150,23 +142,23 @@ defmodule Bank.Accounts.User do
         |> Enum.filter(&is_digit/1)
         |> Enum.map(&String.to_integer/1)
 
-      first_verifying_digit = cnpj_verifying_digit_parse(digits, 5)
-
-      first_digit =
+      [first_digit, second_digit] =
         rest
-        |> Enum.at(0)
-        |> String.to_integer()
+        |> hd()
+        |> String.split("")
+        |> Enum.filter(&is_digit/1)
+        |> Enum.map(&String.to_integer/1)
+
+      first_verifying_digit = cnpj_verifying_digit_parse(digits, 5)
 
       second_verifying_digit =
         digits
-        |> List.insert_at(-1, first_digit)
-        |> cnpj_verifying_digit_parse(11)
+        |> Kernel.++([first_digit])
+        |> cnpj_verifying_digit_parse(6)
 
-      rest
-      |> Enum.map(&String.to_integer/1)
-      |> Enum.at(0)
+      first_digit
       |> Kernel.==(first_verifying_digit)
-      |> Kernel.&&(Enum.at(rest, 1) == second_verifying_digit)
+      |> Kernel.&&(second_digit == second_verifying_digit)
       |> if(do: [], else: [{:cnpj, "invalid cnpj"}])
     else
       [{:cnpj, "invalid cnpj format"}]
