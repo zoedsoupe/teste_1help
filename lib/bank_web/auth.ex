@@ -3,7 +3,7 @@ defmodule BankWeb.Auth do
   Wrappes Guardian and holds custom auth functions based on it
   """
 
-  use Guardian, otp_app: :kirby_project
+  use Guardian, otp_app: :bank
 
   alias Bank.Accounts
   alias Bank.Accounts.User
