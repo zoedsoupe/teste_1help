@@ -14,7 +14,7 @@ defmodule BankWeb.UserController do
 
   action_fallback BankWeb.FallbackController
 
-  @accepts ~w(first_name last_name cpf cnpj email mobile password password_confirmation)a
+  @accepts ~w(first_name last_name cpf cnpj email mobile new_password new_password_confirmation)a
   def create(_conn, params) do
     params
     |> Map.put("confirmation", %{})
@@ -82,7 +82,7 @@ defmodule BankWeb.UserController do
     |> create_response()
   end
 
-  @accepts ~w(id first_name last_name email cpf cnpj password password_confirmation)a
+  @accepts ~w(id first_name last_name email cpf cnpj new_password new_password_confirmation)a
   def change(_conn, params) do
     with {:ok, _user} <- Accounts.get_user(params["id"]),
          {:ok, user} <- Accounts.update_user(params["id"], params) do
@@ -116,7 +116,7 @@ defmodule BankWeb.UserController do
 
   def confirm_email(_conn, _params), do: {:error, :no_token}
 
-  @accepts ~w(id password password_confirmation)a
+  @accepts ~w(id password password_confirmation new_password new_password_confirmation)a
   def change_password(_conn, params) do
     with {:ok, _user} <- Accounts.get_user(params["id"]),
          {:ok, _} <-
@@ -170,7 +170,7 @@ defmodule BankWeb.UserController do
 
   def validate_recovery(_conn, _params), do: {:error, :no_token}
 
-  @accepts ~w(token password password_confirmation)a
+  @accepts ~w(token new_password new_password_confirmation)a
   def recover_password(_conn, %{"token" => token} = params) do
     token
     |> Accounts.get_password_recovery()
