@@ -26,6 +26,18 @@ defmodule Bank.Accounts.User do
   @cpf_format Formats.cpf()
   @cnpj_format Formats.cnpj()
 
+  @type t() :: %__MODULE__{
+          balance: integer(),
+          cnpj: String.t() | nil,
+          cpf: String.t() | nil,
+          confirmed?: boolean(),
+          email: String.t(),
+          first_name: String.t(),
+          last_name: String.t(),
+          mobile: String.t(),
+          password_hash: String.t()
+        }
+
   schema "users" do
     field :balance, :integer, default: 0
     field :cnpj, :string
