@@ -8,9 +8,8 @@ defmodule Bank.AccountsTest do
 
     @valid_attrs %{
       balance: 42,
-      cnpj: "some cnpj",
+      cnpj: "23.658.356/0001-12",
       confirmed?: true,
-      cpf: "some cpf",
       email: "some email",
       first_name: "some first_name",
       last_name: "some last_name",
@@ -22,9 +21,8 @@ defmodule Bank.AccountsTest do
     }
     @update_attrs %{
       balance: 43,
-      cnpj: "some updated cnpj",
+      cnpj: "84.366.626/0001-06",
       confirmed?: false,
-      cpf: "some updated cpf",
       email: "some updated email",
       first_name: "some updated first_name",
       last_name: "some updated last_name",
