@@ -20,7 +20,7 @@ defmodule Bank.Common do
   def map_to_keyword(map) do
     map
     |> Enum.map(fn {k, v} ->
-      k = apply_if(k, is_binary(k), &String.to_atom/1)
+      k = apply_if(k, is_binary(k), &String.to_existing_atom/1)
       {k, v}
     end)
   end
