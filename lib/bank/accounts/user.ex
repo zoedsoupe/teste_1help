@@ -91,6 +91,7 @@ defmodule Bank.Accounts.User do
   defp cnpj_verifying_digit_parse(digits, amount) do
     range =
       amount..2
+      |> Enum.to_list()
       |> Kernel.++(Enum.to_list(9..2))
 
     digit =
@@ -112,6 +113,7 @@ defmodule Bank.Accounts.User do
 
       digits =
         digits
+        |> String.split("")
         |> Enum.filter(&is_digit/1)
         |> Enum.map(&String.to_integer/1)
 
@@ -140,11 +142,12 @@ defmodule Bank.Accounts.User do
 
   defp validate_cnpj(_, value) do
     if String.match?(value, @cnpj_format) do
-      [digits | rest] = String.split("-")
+      [digits | rest] = String.split(value, "-")
 
       digits =
         digits
-        |> Enum.map(&is_digit/1)
+        |> String.split("")
+        |> Enum.filter(&is_digit/1)
         |> Enum.map(&String.to_integer/1)
 
       first_verifying_digit = cnpj_verifying_digit_parse(digits, 5)
