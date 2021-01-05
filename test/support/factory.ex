@@ -1,5 +1,5 @@
 defmodule Bank.Factory do
-    @moduledoc """
+  @moduledoc """
   Factory for tests
   """
 
@@ -15,6 +15,6 @@ defmodule Bank.Factory do
       email: sequence(:email, &"matheus#{&1}@outlook.com"),
       mobile: sequence(:mobile, &"(22)12345-678#{&1}"),
       password_hash: Argon2.hash_pwd_salt("12345678910")
-    } 
+    }
   end
 end
