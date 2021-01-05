@@ -50,6 +50,20 @@ if Mix.env() != :prod do
     ]
 end
 
+# Guardian
+config :bank, BankWeb.Auth,
+  issuer: "bank",
+  secret_key: "U5Hu+z/iLlr8fz9jsgHSXVc4xd+TciR/aORxebMKGHp4vVB1tnmPBzI+V+IrbUti"
+
+# Documenting
+config :bank, Bank.Documenting,
+  result_file_path: "README.md",
+  default_response_transforms: %{
+    inserted_at: "2021-01-04T22:16:56",
+    updated_at: "2021-01-04T22:16:56",
+    email: "valid@email.com"
+  }
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

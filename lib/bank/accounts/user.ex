@@ -4,7 +4,6 @@ defmodule Bank.Accounts.User do
   """
 
   use Bank.Changeset, command: true
-  use Bank.Schema, expose: true, query: true
 
   alias Bank.Accounts.UserConfirmation, as: Confirmation
   alias Bank.Accounts.UserPassRecovery, as: PassRecovery
@@ -21,7 +20,9 @@ defmodule Bank.Accounts.User do
   @simple_filters ~w(first_name email cpf cnpj)a
   @simple_sortings ~w(first_name email cpf cnpj inserted_at)a
 
-  @exposed_fields ~w(first_name last_name email)
+  @exposed_fields ~w(first_name last_name email)a
+
+  use Bank.Schema, expose: true, query: true
 
   @cpf_format Formats.cpf()
   @cnpj_format Formats.cnpj()
@@ -72,7 +73,6 @@ defmodule Bank.Accounts.User do
     |> validate_email(:email)
     |> validate_phone(:mobile)
     |> validate_length(:password, min: 10)
-    |> validate_confirmation(:password)
     |> validate_change(:cpf, &validate_cpf/2)
     |> validate_change(:cnpj, &validate_cnpj/2)
     |> unique_constraint(:cpf)
@@ -179,8 +179,8 @@ defmodule Bank.Accounts.User do
 
   defp execute_command(changeset, :check_password) do
     changeset
-    |> validate_required([:password])
-    |> validate_required([:password_confirmation])
+    |> validate_required([:password, :password_confirmation])
+    |> validate_confirmation(:password)
     |> case do
       %Ecto.Changeset{valid?: true} ->
         changeset.changes.password
@@ -197,8 +197,8 @@ defmodule Bank.Accounts.User do
 
   defp execute_command(changeset, :set_password) do
     changeset
-    |> validate_required([:password])
-    |> validate_required([:password_confirmation])
+    |> validate_required([:password, :password_confirmation])
+    |> validate_confirmation(:password)
     |> case do
       %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
         put_change(changeset, :password_hash, Argon2.hash_pwd_salt(pass))
