@@ -9,7 +9,7 @@ defmodule Bank.Accounts.Jobs.RecoveryEmail do
   alias Bank.{Accounts, Repo}
   alias Bank.Mailing
 
-  def perform(%{"token" => token}, _) do
+  def perform(%{"token" => token}) do
     %{user: user} =
       token
       |> Accounts.get_password_recovery()

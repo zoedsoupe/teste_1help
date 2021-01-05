@@ -13,9 +13,6 @@ defmodule Bank.Jobs.Worker do
         |> __MODULE__.new()
         |> Oban.insert()
       end
-
-      def create_generic_worker(resource),
-        do: resource |> create_generic_worker() |> ok_unwrap()
     end
   end
 end
