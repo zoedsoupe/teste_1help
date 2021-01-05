@@ -9,7 +9,10 @@ defmodule Bank.Accounts.User do
   alias Bank.Accounts.UserPassRecovery, as: PassRecovery
   alias Bank.Common.Formats
 
-  @fields ~w(balance cnpj confirmed? cpf mobile email first_name last_name password password_confirmation)a
+  @basic_fields ~w(balance cnpj confirmed? cpf mobile email first_name last_name)a
+  @password_fields ~w(password password_confirmation new_password new_password_confirmation)a
+
+  @fields @basic_fields ++ @password_fields
 
   # cpf and cnpj are also required
   # but the check_constraint/3 will validate both
@@ -197,8 +200,8 @@ defmodule Bank.Accounts.User do
 
   defp execute_command(changeset, :set_password) do
     changeset
-    |> validate_required([:password, :password_confirmation])
-    |> validate_confirmation(:password)
+    |> validate_required([:new_password, :new_password_confirmation])
+    |> validate_confirmation(:new_password)
     |> case do
       %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
         put_change(changeset, :password_hash, Argon2.hash_pwd_salt(pass))
