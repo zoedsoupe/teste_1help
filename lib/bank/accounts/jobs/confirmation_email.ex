@@ -7,7 +7,7 @@ defmodule Bank.Accounts.Jobs.ConfirmationEmail do
   alias Bank.{Accounts, Repo}
   alias Bank.Mailing
 
-  def perform(%{"id" => id}, _) do
+  def perform(%{"id" => id}) do
     user = id |> Accounts.get_user!() |> Repo.preload(:confirmation)
 
     %{

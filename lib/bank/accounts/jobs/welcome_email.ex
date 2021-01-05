@@ -7,7 +7,7 @@ defmodule Bank.Accounts.Jobs.WelcomeEmail do
   alias Bank.Accounts
   alias Bank.Mailing
 
-  def perform(%{"id" => id}, _) do
+  def perform(%{"id" => id}) do
     user = id |> Accounts.get_user!()
 
     %{
