@@ -55,6 +55,27 @@ config :bank, Bank.Mailing,
   adapter: Bamboo.LocalAdapter,
   open_email_in_browser_url: "http://localhost:4000/sent_emails"
 
+# Guardian
+config :bank, BankWeb.Auth,
+  issuer: "bank",
+  secret_key: "U5Hu+z/iLlr8fz9jsgHSXVc4xd+TciR/aORxebMKGHp4vVB1tnmPBzI+V+IrbUti"
+
+# Documenting
+config :bank, Bank.Documenting,
+  result_file_path: "README.md",
+  default_response_transforms: %{
+    inserted_at: "2021-01-04T22:16:56",
+    updated_at: "2021-01-04T22:16:56",
+    email: "valid@email.com"
+  }
+
+# Oban
+# Configures Oban
+config :bank, Oban,
+  repo: Bank.Repo,
+  prune: {:maxlen, 10_000},
+  queues: [default: 10, events: 50, media: 20, mailing: 50]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
