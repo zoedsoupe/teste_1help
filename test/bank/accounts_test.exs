@@ -9,7 +9,6 @@ defmodule Bank.AccountsTest do
     alias Bank.Accounts.User
 
     @valid_attrs %{
-      balance: 42,
       cnpj: "23.658.356/0001-12",
       confirmed?: true,
       mobile: "(22)12345-6789",
@@ -19,6 +18,7 @@ defmodule Bank.AccountsTest do
       password: "12345678910",
       password_confirmation: "12345678910"
     }
+
     @update_attrs %{
       balance: 43,
       cnpj: "84.366.626/0001-06",
@@ -29,8 +29,8 @@ defmodule Bank.AccountsTest do
       password: "12345678911",
       password_confirmation: "12345678911"
     }
+
     @invalid_attrs %{
-      balance: nil,
       cnpj: nil,
       cpf: nil,
       mobile: nil,
@@ -64,7 +64,6 @@ defmodule Bank.AccountsTest do
 
       found_user = Accounts.get_user!(user.id)
 
-      assert found_user.balance == user.balance
       assert found_user.cnpj == user.cnpj
       assert found_user.email == user.email
       assert found_user.first_name == user.first_name
@@ -73,7 +72,7 @@ defmodule Bank.AccountsTest do
 
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
-      assert user.balance == 42
+      assert user.balance == 0
       assert user.cnpj == "23.658.356/0001-12"
       assert user.email == "x@gmail.com"
       assert user.first_name == "Some First_name"
@@ -87,6 +86,7 @@ defmodule Bank.AccountsTest do
 
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
+
       assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
       assert user.balance == 43
       assert user.cnpj == "84.366.626/0001-06"
@@ -100,14 +100,6 @@ defmodule Bank.AccountsTest do
       user = user_fixture()
 
       assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @invalid_attrs)
-
-      found_user = Accounts.get_user!(user.id)
-
-      assert found_user.balance == user.balance
-      assert found_user.cnpj == user.cnpj
-      assert found_user.email == user.email
-      assert found_user.first_name == user.first_name
-      assert found_user.last_name == user.last_name
     end
 
     test "delete_user/1 deletes the user" do
