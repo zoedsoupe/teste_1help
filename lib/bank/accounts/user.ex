@@ -15,7 +15,7 @@ defmodule Bank.Accounts.User do
   # but the check_constraint/3 will validate both
   # both password and password_confirmation too
   # however maybe_execute_command will validate they
-  @required_fields ~w(first_name last_name email mobile)
+  @required_fields ~w(first_name last_name email mobile)a
 
   @simple_filters ~w(first_name email cpf cnpj)a
   @simple_sortings ~w(first_name email cpf cnpj inserted_at)a
@@ -23,7 +23,7 @@ defmodule Bank.Accounts.User do
   @exposed_fields ~w(first_name last_name email)
 
   schema "users" do
-    field :balance, :integer
+    field :balance, :integer, default: 0
     field :cnpj, :string
     field :confirmed?, :boolean, default: false
     field :cpf, :string

@@ -10,7 +10,7 @@ defmodule Bank.Repo.Migrations.CreateUsers do
       add :mobile, :string
       add :first_name, :string
       add :last_name, :string
-      add :balance, :integer
+      add :balance, :integer, default: 0, null: false
       add :confirmed?, :boolean, default: false, null: false
       add :password, :string, virtual: true
       add :password_confirmation, :string, virtual: true
