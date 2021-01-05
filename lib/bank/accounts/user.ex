@@ -4,8 +4,9 @@ defmodule Bank.Accounts.User do
   """
 
   use Bank.Changeset, command: true
+  use Bank.Schema, expose: true, query: true
 
-  use Bank.Schema, expose: true
+  alias Bank.Accounts.UserConfirmation, as: Confirmation
 
   @fields ~w(balance cnpj confirmed? cpf mobile email first_name last_name password password_confirmation)a
 
@@ -33,6 +34,8 @@ defmodule Bank.Accounts.User do
     field :password_confirmation, :string, virtual: true
     field :password_hash, :string
 
+    has_one :confirmation, Confirmation
+
     timestamps()
   end
 
@@ -41,7 +44,7 @@ defmodule Bank.Accounts.User do
     user
     |> cast(attrs, @fields)
     |> validate_required(@required_fields)
-    |> check_constraint([:cpf, :cnpj], name: :cpf_or_cnpj)
+    |> check_constraint(:users, name: :cpf_or_cnpj, message: "A CPF or CNPJ is required")
     |> remove_whitespaces(:first_name)
     |> remove_whitespaces(:last_name)
     |> capitalize_all_words(:first_name)

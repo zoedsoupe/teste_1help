@@ -16,8 +16,6 @@ defmodule Bank.Schema do
 
       if unquote(opts[:expose]) do
         @exposed Module.get_attribute(__MODULE__, :exposed_fields, [])
-        @sortings Module.get_attribute(__MODULE__, :simple_sortings, [])
-        @filters Module.get_attribute(__MODULE__, :simple_filters, [])
 
         def exposed_fields, do: @exposed
 
@@ -29,54 +27,59 @@ defmodule Bank.Schema do
         end
       end
 
-      # Pagination
-      defp put_limit(query, nil), do: query
-      defp put_limit(query, limit), do: query |> limit(^limit)
+      if unquote(opts[:query]) do
+        @sortings Module.get_attribute(__MODULE__, :simple_sortings, [])
+        @filters Module.get_attribute(__MODULE__, :simple_filters, [])
 
-      defp put_offset(query, nil), do: query
-      defp put_offset(query, offset), do: query |> offset(^offset)
+        # Pagination
+        defp put_limit(query, nil), do: query
+        defp put_limit(query, limit), do: query |> limit(^limit)
 
-      # Querying
+        defp put_offset(query, nil), do: query
+        defp put_offset(query, offset), do: query |> offset(^offset)
 
-      @doc """
-      Returns a query with params
-      """
-      @spec get_query(list({atom(), any()}) | nil) :: Ecto.Query.t()
-      def get_query(params) do
-        sort = params[:sort] || [asc: :inserted_at]
+        # Querying
 
-        from(x in __MODULE__)
-        |> apply_filters(params)
-        |> define_columns(params[:field_set])
-        |> put_limit(params[:limit])
-        |> put_offset(params[:offset])
-        |> put_sort(sort)
+        @doc """
+        Returns a query with params
+        """
+        @spec get_query(list({atom(), any()}) | nil) :: Ecto.Query.t()
+        def get_query(params) do
+          sort = params[:sort] || [asc: :inserted_at]
+
+          from(x in __MODULE__)
+          |> apply_filters(params)
+          |> define_columns(params[:field_set])
+          |> put_limit(params[:limit])
+          |> put_offset(params[:offset])
+          |> put_sort(sort)
+        end
+
+        # Filtering
+        defp apply_filters(query, nil), do: query
+        defp apply_filters(query, []), do: query
+
+        defp apply_filters(query, [{field, :invalid} | _rest]) when field in @filters do
+          query
+          |> where([x], false)
+        end
+
+        defp apply_filters(query, [{field, value} | rest]) when field in @filters do
+          query
+          |> where([x], field(x, ^field) == ^value)
+          |> apply_filters(rest)
+        end
+
+        defp apply_filters(query, [_ | rest]), do: apply_filters(query, rest)
+
+        # Sorting
+        defp put_sort(query, [{order, field}]) when field in @sortings do
+          query
+          |> order_by([a], {^order, ^field})
+        end
+
+        defp put_sort(query, _), do: query |> order_by([x], {:asc, x.inserted_at})
       end
-
-      # Filtering
-      defp apply_filters(query, nil), do: query
-      defp apply_filters(query, []), do: query
-
-      defp apply_filters(query, [{field, :invalid} | _rest]) when field in @filters do
-        query
-        |> where([x], false)
-      end
-
-      defp apply_filters(query, [{field, value} | rest]) when field in @filters do
-        query
-        |> where([x], field(x, ^field) == ^value)
-        |> apply_filters(rest)
-      end
-
-      defp apply_filters(query, [_ | rest]), do: apply_filters(query, rest)
-
-      # Sorting
-      defp put_sort(query, [{order, field}]) when field in @sortings do
-        query
-        |> order_by([a], {^order, ^field})
-      end
-
-      defp put_sort(query, _), do: query |> order_by([x], {:asc, x.inserted_at})
     end
   end
 
