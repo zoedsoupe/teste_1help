@@ -14,24 +14,25 @@ defmodule BankWeb.Router do
     pipe_through :api
 
     post "/login", SessionController, :create
+
+    scope "/users" do
+      post "/", UserController, :create
+      post "/recover-password", UserController, :create_recovery
+      post "/resend-confirmation-email", UserController, :resend_confirmation_email
+
+      get "/confirm-email", UserController, :confirm_email
+      get "/recover-password", UserController, :validate_recovery
+
+      put "/recover-password", UserController, :recover_password
+    end
   end
 
   scope "/api/v1", BankWeb do
     pipe_through :api_as_user
 
     scope "/users" do
-      post "/", UserController, :create
-      post "/accept-speaker-invite", UserController, :create_from_speaker_invite
-      post "/recover-password", UserController, :create_recovery
-      post "/resend-confirmation-email", UserController, :resend_confirmation_email
-
-      get "/", UserController, :list
-      get "/confirm-email", UserController, :confirm_email
-      get "/recover-password", UserController, :validate_recovery
-
-      put "/recover-password", UserController, :recover_password
-
       scope "/" do
+        get "/", UserController, :list
         get "/:id", UserController, :show
 
         put "/:id/change-password", UserController, :change_password

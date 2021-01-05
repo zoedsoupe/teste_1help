@@ -75,7 +75,6 @@ defmodule Bank.Accounts.User do
     |> downcase(:email)
     |> validate_email(:email)
     |> validate_phone(:mobile)
-    |> validate_length(:password, min: 10)
     |> validate_change(:cpf, &validate_cpf/2)
     |> validate_change(:cnpj, &validate_cnpj/2)
     |> unique_constraint(:cpf)
@@ -183,6 +182,7 @@ defmodule Bank.Accounts.User do
   defp execute_command(changeset, :check_password) do
     changeset
     |> validate_required([:password, :password_confirmation])
+    |> validate_length(:password, min: 10)
     |> validate_confirmation(:password)
     |> case do
       %Ecto.Changeset{valid?: true} ->
@@ -201,6 +201,7 @@ defmodule Bank.Accounts.User do
   defp execute_command(changeset, :set_password) do
     changeset
     |> validate_required([:new_password, :new_password_confirmation])
+    |> validate_length(:new_password, min: 10)
     |> validate_confirmation(:new_password)
     |> case do
       %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->

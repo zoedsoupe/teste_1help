@@ -43,4 +43,8 @@ defmodule BankWeb.ConnCase do
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
+
+  def get_resp_body(conn), do: conn |> Map.get(:resp_body) |> Jason.decode!()
+  def get_resp_message(conn), do: (conn |> get_resp_body())["message"]
+  def get_resp_data(conn), do: (conn |> get_resp_body())["data"]
 end
