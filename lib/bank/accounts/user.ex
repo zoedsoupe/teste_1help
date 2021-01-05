@@ -7,6 +7,7 @@ defmodule Bank.Accounts.User do
   use Bank.Schema, expose: true, query: true
 
   alias Bank.Accounts.UserConfirmation, as: Confirmation
+  alias Bank.Accounts.UserPassRecovery, as: PassRecovery
 
   @fields ~w(balance cnpj confirmed? cpf mobile email first_name last_name password password_confirmation)a
 
@@ -35,6 +36,7 @@ defmodule Bank.Accounts.User do
     field :password_hash, :string
 
     has_one :confirmation, Confirmation
+    has_one :pass_recovery, PassRecovery
 
     timestamps()
   end
