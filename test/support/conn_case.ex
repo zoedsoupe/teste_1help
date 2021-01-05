@@ -25,6 +25,7 @@ defmodule BankWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import BankWeb.ConnCase
+      use Bank.Documenting
 
       alias BankWeb.Router.Helpers, as: Routes
 
