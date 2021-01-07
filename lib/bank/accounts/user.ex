@@ -209,7 +209,7 @@ defmodule Bank.Accounts.User do
     |> validate_length(:new_password, min: 10)
     |> validate_confirmation(:new_password)
     |> case do
-      %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
+      %Ecto.Changeset{valid?: true, changes: %{new_password: pass}} ->
         put_change(changeset, :password_hash, Argon2.hash_pwd_salt(pass))
 
       invalid_changeset ->

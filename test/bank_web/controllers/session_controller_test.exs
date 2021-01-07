@@ -9,8 +9,8 @@ defmodule BankWeb.SessionTest do
     mobile: "(22)12345-6789",
     first_name: "Kirby",
     last_name: "Josias",
-    password: "password12",
-    password_confirmation: "password12",
+    new_password: "password12",
+    new_password_confirmation: "password12",
     confirmed?: true
   }
 
