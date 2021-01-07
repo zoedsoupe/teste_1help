@@ -6,6 +6,7 @@ defmodule BankWeb.UserControllerTest do
   use Oban.Testing, repo: Bank.Repo
 
   import Bank.Factory
+  import Bank.Common.Wrapping
   import Ecto.Changeset
 
   alias Bank.{Accounts, Repo}
