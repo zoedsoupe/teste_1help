@@ -185,4 +185,32 @@ defmodule Bank.Accounts do
     |> Changeset.change(%{used?: true})
     |> Repo.update!()
   end
+
+  @doc """
+  Decrease user balance for transaction
+  """
+  def withdraw(id, [{:amount, amount}]) do
+    case get_user(id) do
+      {:ok, user} ->
+        user
+        |> update_user(%{balance: user.balance - amount})
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Increase user balance for transaction
+  """
+  def deposit(id, [{:amount, amount}]) do
+    case get_user(id) do
+      {:ok, user} ->
+        user
+        |> update_user(%{balance: user.balance + amount})
+
+      error ->
+        error
+    end
+  end
 end
