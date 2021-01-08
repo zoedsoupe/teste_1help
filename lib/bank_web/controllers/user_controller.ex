@@ -10,7 +10,6 @@ defmodule BankWeb.UserController do
   alias Bank.Accounts.User
 
   import Bank.Common
-  import BankWeb.Common
 
   action_fallback BankWeb.FallbackController
 
@@ -24,9 +23,11 @@ defmodule BankWeb.UserController do
         user
         |> ConfirmationEmail.create_generic_worker()
 
-        user
-        |> Map.take(User.exposed_fields())
-        |> Map.new(fn data -> {:data, data} end)
+        fields =
+          user
+          |> Map.take(User.exposed_fields())
+
+        %{data: fields}
         |> Map.put(:message, :created)
         |> create_response()
 
@@ -74,21 +75,26 @@ defmodule BankWeb.UserController do
 
   @accepts ~w(first_name email cpf cnpj)a
   def list(_conn, params) do
-    params
-    |> map_to_keyword()
-    |> Accounts.list_users()
-    |> create_response_data_map()
+    users =
+      params
+      |> map_to_keyword()
+      |> Accounts.list_users()
+      |> Enum.map(&Map.take(&1, User.exposed_fields()))
+
+    %{data: users}
     |> Map.put(:message, :ok)
     |> create_response()
   end
 
   @accepts ~w(id first_name last_name email cpf cnpj new_password new_password_confirmation)a
   def change(_conn, params) do
-    with {:ok, _user} <- Accounts.get_user(params["id"]),
-         {:ok, user} <- Accounts.update_user(params["id"], params) do
-      user
-      |> Map.take(User.exposed_fields())
-      |> create_response_data_map()
+    with {:ok, user} <- Accounts.get_user(params["id"]),
+         {:ok, user} <- Accounts.update_user(user, params) do
+      fields =
+        user
+        |> Map.take(User.exposed_fields())
+
+      %{data: fields}
       |> Map.put(:message, :updated)
       |> create_response()
     else
@@ -118,9 +124,9 @@ defmodule BankWeb.UserController do
 
   @accepts ~w(id password password_confirmation new_password new_password_confirmation)a
   def change_password(_conn, params) do
-    with {:ok, _user} <- Accounts.get_user(params["id"]),
+    with {:ok, user} <- Accounts.get_user(params["id"]),
          {:ok, _} <-
-           params["id"] |> Accounts.update_user(params, [:check_password, :set_password]) do
+           user |> Accounts.update_user(params, [:check_password, :set_password]) do
       create_response(%{message: :password_changed})
     else
       {:error, :not_found} ->
@@ -155,11 +161,13 @@ defmodule BankWeb.UserController do
     |> Accounts.get_password_recovery()
     |> case do
       {:ok, recovery} ->
-        recovery
-        |> Repo.preload(:user)
-        |> Map.get(:user)
-        |> Map.take(User.exposed_fields())
-        |> create_response_data_map()
+        fields =
+          recovery
+          |> Repo.preload(:user)
+          |> Map.get(:user)
+          |> Map.take(User.exposed_fields())
+
+        %{data: fields}
         |> Map.put(:message, :valid)
         |> create_response()
 

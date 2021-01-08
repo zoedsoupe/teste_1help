@@ -14,7 +14,7 @@ defmodule Bank.Accounts.Jobs.WelcomeEmail do
       subject: "Seja bem vindo!",
       template: "welcome",
       assigns: %{
-        name: user.name
+        name: ~s|user.first_name user.last_name|
       },
       to_email: user.email
     }

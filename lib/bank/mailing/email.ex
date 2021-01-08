@@ -24,7 +24,6 @@ defmodule Bank.Mailing.Email do
     :to_email,
     :template,
     :assigns,
-    :event_id,
     :message
   ]
 
@@ -32,7 +31,6 @@ defmodule Bank.Mailing.Email do
   @email_format Formats.email()
 
   @simple_filters [
-    :event_id,
     :user_id,
     :subject,
     :template,
