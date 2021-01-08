@@ -67,6 +67,7 @@ defmodule Bank.Accounts.User do
   def changeset(user, attrs, commands \\ []) do
     user
     |> cast(attrs, @fields)
+    |> cast_assoc(:confirmation)
     |> validate_required(@required_fields)
     |> check_constraint(:users,
       name: :cpf_or_cnpj,

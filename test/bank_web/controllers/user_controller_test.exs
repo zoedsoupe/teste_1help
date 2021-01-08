@@ -102,8 +102,6 @@ defmodule BankWeb.UserControllerTest do
           ]
         )
 
-      %{conn | body_params: conn.body_params |> Map.delete("confirmed?"), resp_headers: %{}}
-
       %{"message" => message, "data" => user} = conn |> Map.get(:resp_body) |> Jason.decode!()
 
       ConfirmationEmail.perform(%{"id" => user["id"]})
@@ -111,9 +109,8 @@ defmodule BankWeb.UserControllerTest do
       assert conn.status == 201
       assert message == "created"
 
-      assert user["first_name"] == @valid_attrs.first_name
-      assert user["last_name"] == @valid_attrs.last_name
-      assert user["cnpj"] == @valid_attrs.cnpj
+      assert user["first_name"] == "Some First_name"
+      assert user["last_name"] == "Some Last_name"
       assert user["email"] == @valid_attrs.email
 
       complete_user = user["id"] |> Accounts.get_user!()
