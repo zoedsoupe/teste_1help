@@ -33,6 +33,7 @@ defmodule Bank.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bamboo, "~> 1.6"},
       {:phoenix, "~> 1.5.6"},
       {:phoenix_ecto, "~> 4.1"},
       {:ecto_sql, "~> 3.4"},
@@ -41,8 +42,12 @@ defmodule Bank.MixProject do
       {:telemetry_metrics, "~> 0.4"},
       {:telemetry_poller, "~> 0.4"},
       {:gettext, "~> 0.11"},
+      {:oban, "~> 2.3"},
       {:jason, "~> 1.0"},
+      {:guardian, "~> 2.0"},
       {:plug_cowboy, "~> 2.0"},
+      {:ex_machina, "~> 2.5.0"},
+      {:argon2_elixir, "~> 2.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:git_hooks, "~> 0.5.0", only: [:test, :dev], runtime: false}

@@ -1,0 +1,2 @@
+<% link = "#{@domain}/api/v1/users/confirm-email?token=#{@token}" %>
+Confirme seu e-mail pelo link: <a href=<%= link %>> <%= link %> </a>
