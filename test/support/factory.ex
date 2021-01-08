@@ -6,10 +6,12 @@ defmodule Bank.Factory do
   use ExMachina.Ecto, repo: Bank.Repo
 
   import Bank.Schema, only: [gen_token: 0]
+  import Ecto.UUID, only: [bingenerate: 0]
 
   alias Bank.Accounts.User
   alias Bank.Accounts.UserConfirmation, as: Confirmation
   alias Bank.Accounts.UserPassRecovery, as: PassRecovery
+  alias Bank.Transactions.Transaction
 
   def user_factory do
     %User{
@@ -36,6 +38,15 @@ defmodule Bank.Factory do
       token: gen_token(),
       used?: false,
       expiration: ~N|2090-09-12 12:12:12|
+    }
+  end
+
+  def transaction_factory do
+    %Transaction{
+      sender_id: bingenerate(),
+      recipient_id: bingenerate(),
+      amount: 43.2,
+      processing_date: ~N|2021-02-12 12:12:12|
     }
   end
 end

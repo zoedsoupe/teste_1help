@@ -6,7 +6,7 @@ defmodule Bank.Transactions do
   import Ecto.Query, warn: false
 
   alias Bank.Repo
-  alias Bank.Transaction
+  alias Bank.Transactions.Transaction
 
   @doc """
   Returns the list of transactions.
@@ -55,5 +55,29 @@ defmodule Bank.Transactions do
   """
   def delete_transaction(%Transaction{} = transaction) do
     Repo.delete(transaction)
+  end
+
+  @doc """
+  Gets a single transaction.
+
+  Raises `Ecto.NoResultsError` if the Transaction does not exist.
+
+  ## Examples
+
+      iex> get_transaction!(123)
+      %Transaction{}
+
+      iex> get_transaction!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_transaction!(id), do: Repo.get!(Transaction, id)
+
+  def get_transaction(id) do
+    Repo.get(Transaction, id)
+    |> case do
+      nil -> {:error, :not_found}
+      transaction -> {:ok, transaction}
+    end
   end
 end

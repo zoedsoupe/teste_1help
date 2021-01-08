@@ -1,11 +1,11 @@
-defmodule Bank.Transaction do
+defmodule Bank.Transactions.Transaction do
   @moduledoc """
   Entity that represents users's values exchanges
   """
 
   use Bank.Changeset, command: true
 
-  @fields ~w(sender_id recipient_id value processing_date)a
+  @fields ~w(sender_id recipient_id amount processing_date)a
 
   @required_fields @fields
 
@@ -18,8 +18,9 @@ defmodule Bank.Transaction do
 
   schema "transactions" do
     field :processing_date, :naive_datetime
-    field :recipient_id, :string
-    field :sender_id, :string
+    field :recipient_id, :binary_id
+    field :sender_id, :binary_id
+    field :amount, :float, virtual: true
     field :value, :integer
 
     timestamps()
@@ -35,8 +36,8 @@ defmodule Bank.Transaction do
 
   defp execute_command(changeset, :save_as_integer) do
     case changeset do
-      %Ecto.Changeset{valid?: true, changes: %{value: value}} ->
-        put_change(changeset, :value, value * 100)
+      %Ecto.Changeset{valid?: true, changes: %{amount: amount}} ->
+        put_change(changeset, :value, round(amount * 100))
 
       invalid_changeset ->
         invalid_changeset
