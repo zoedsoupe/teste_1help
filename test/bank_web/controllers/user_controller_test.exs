@@ -8,6 +8,7 @@ defmodule BankWeb.UserControllerTest do
   import Bank.Factory
   import Bank.Common.Wrapping
   import Ecto.Changeset
+  import Ecto.Query
 
   alias Bank.{Accounts, Repo}
   alias Bank.Accounts.UserPassRecovery
@@ -60,7 +61,7 @@ defmodule BankWeb.UserControllerTest do
       first_name: "some updated first_name",
       last_name: "some updated last_name",
       mobile: "(22)52431-9999",
-      cnpj: "11.274.832/0001-12",
+      cpf: "783.728.680-42",
       password: "Somepass123",
       password_confirmation: "Somepass123",
       new_password: "NewPass123",
@@ -81,12 +82,6 @@ defmodule BankWeb.UserControllerTest do
       new_password: nil,
       new_password_confirmation: nil
     }
-
-    setup %{conn: conn} do
-      user = insert(:user)
-
-      %{conn: conn, user: user}
-    end
 
     test "POST /users with valid data creates an user", ctx do
       conn =
@@ -111,12 +106,14 @@ defmodule BankWeb.UserControllerTest do
 
       %{"message" => message, "data" => user} = conn |> Map.get(:resp_body) |> Jason.decode!()
 
-      ConfirmationEmail.perform(%{"id" => user["id"]}, nil)
+      ConfirmationEmail.perform(%{"id" => user["id"]})
 
       assert conn.status == 201
       assert message == "created"
 
-      assert user["name"] == @valid_attrs.name
+      assert user["first_name"] == @valid_attrs.first_name
+      assert user["last_name"] == @valid_attrs.last_name
+      assert user["cnpj"] == @valid_attrs.cnpj
       assert user["email"] == @valid_attrs.email
 
       complete_user = user["id"] |> Accounts.get_user!()
@@ -124,7 +121,6 @@ defmodule BankWeb.UserControllerTest do
       # Ensure a password was set
       refute nil == complete_user.password_hash
       refute complete_user.confirmed?
-      refute complete_user.admin?
 
       assert_enqueued(worker: ConfirmationEmail, args: %{id: user["id"]})
       assert_email_delivered_with(to: [nil: user["email"]])
@@ -137,6 +133,7 @@ defmodule BankWeb.UserControllerTest do
 
       assert conn.status == 422
       assert details["first_name"] == ["can't be blank"]
+      assert details["last_name"] == ["can't be blank"]
       assert details["email"] == ["can't be blank"]
 
       assert_no_emails_delivered()
@@ -159,8 +156,9 @@ defmodule BankWeb.UserControllerTest do
       assert conn.status == 200
       assert message == "updated"
 
+      assert updated_user["first_name"] == "Some Updated First_name"
+      assert updated_user["last_name"] == "Some Updated Last_name"
       assert updated_user["email"] == @updated_attrs.email
-      assert updated_user["first_name"] == @updated_attrs.name
 
       complete_user = id |> Accounts.get_user!()
 
@@ -172,27 +170,29 @@ defmodule BankWeb.UserControllerTest do
 
   @tag auth: true
   test "PUT /users/:id with invalid data returns error changeset", ctx do
-    conn = put(ctx.conn, "/api/v1/users/#{ctx.user.id}", @invalid_attrs)
+    %{id: user_id} = ctx.user
+
+    conn = put(ctx.conn, "/api/v1/users/#{user_id}", @invalid_attrs)
 
     %{"details" => errors} = conn |> Map.get(:resp_body) |> Jason.decode!()
 
     assert conn.status == 422
 
+    assert conn.status == 422
     assert errors["first_name"] == ["can't be blank"]
     assert errors["email"] == ["can't be blank"]
+    assert errors["last_name"] == ["can't be blank"]
   end
 
+  @tag auth: true
   test "PUT /users/:id/change-password changes their password", ctx do
-    # Should explicitly create user to be able to give it a password
     user = ctx.user
-    {_, token, _} = user |> BankWeb.Auth.encode_and_sign()
 
     conn =
       ctx.conn
-      |> put_req_header("authorization", "Bearer #{token}")
       |> put("/api/v1/users/#{user.id}/change-password", %{
-        password: "Somepass123",
-        password_confirmation: "Somepass123",
+        password: "12345678910",
+        password_confirmation: "12345678910",
         new_password: @updated_attrs.new_password,
         new_password_confirmation: @updated_attrs.new_password_confirmation
       })
@@ -222,7 +222,8 @@ defmodule BankWeb.UserControllerTest do
 
   test "PUT /users/:id/change-password with wrong current pass returns fail", ctx do
     # Should explicitelly create user to be able to give it a password
-    user = ctx.user
+    user = insert(:user, confirmed?: true)
+
     {_, token, _} = user |> BankWeb.Auth.encode_and_sign()
 
     conn =
@@ -249,7 +250,7 @@ defmodule BankWeb.UserControllerTest do
   end
 
   test "password recovery works properly", ctx do
-    %{id: user_id} = user = ctx.user
+    %{id: user_id} = user = insert(:user, confirmed?: true)
 
     %{"message" => "recovery_attempt_created"} =
       post(ctx.conn, "/api/v1/users/recover-password", %{email: user.email})
@@ -259,9 +260,13 @@ defmodule BankWeb.UserControllerTest do
       )
       |> get_resp_body()
 
-    %{token: token} = UserPassRecovery |> Repo.one!()
+    %{token: token} =
+      from(pr in UserPassRecovery)
+      |> where([pr], pr.user_id == ^user_id)
+      |> Repo.all()
+      |> hd()
 
-    RecoveryEmail.perform(%{"token" => token}, nil)
+    RecoveryEmail.perform(%{"token" => token})
 
     assert_enqueued(worker: RecoveryEmail)
 
@@ -331,7 +336,7 @@ defmodule BankWeb.UserControllerTest do
     new_pass = "new-pass12"
 
     conn =
-      put(ctx.conn, "/api/users/recover-password", %{
+      put(ctx.conn, "/api/v1/users/recover-password", %{
         new_password: new_pass,
         new_password_confirmation: new_pass,
         token: token
@@ -365,7 +370,7 @@ defmodule BankWeb.UserControllerTest do
   end
 
   test "/users/resend-confirmation-email sends confirmation email again", ctx do
-    %{id: id, email: email} = ctx.user
+    %{id: id, email: email} = insert(:user)
 
     conn =
       post(ctx.conn, "/api/v1/users/resend-confirmation-email", %{email: email})
@@ -374,7 +379,7 @@ defmodule BankWeb.UserControllerTest do
         on_nil: [email: :error]
       )
 
-    ConfirmationEmail.perform(%{"id" => id}, nil)
+    ConfirmationEmail.perform(%{"id" => id})
 
     assert conn.status == 200
     assert_enqueued(worker: ConfirmationEmail, args: %{id: id})
@@ -405,7 +410,9 @@ defmodule BankWeb.UserControllerTest do
   end
 
   test "/users/confirmation-email with valid params activates account", ctx do
-    %{id: id, confirmation: %{token: token}} = ctx.user
+    confirmation = insert(:confirmation)
+
+    %{id: id, confirmation: %{token: token}} = insert(:user, confirmation: confirmation)
 
     conn =
       get(ctx.conn, "/api/v1/users/confirm-email?token=#{token}")
@@ -415,7 +422,7 @@ defmodule BankWeb.UserControllerTest do
       )
 
     user = id |> Accounts.get_user!() |> Repo.preload(:confirmation)
-    WelcomeEmail.perform(%{"id" => id}, nil)
+    WelcomeEmail.perform(%{"id" => id})
 
     assert conn.status == 200
     assert user.confirmed?
@@ -434,7 +441,9 @@ defmodule BankWeb.UserControllerTest do
   end
 
   test "/users/confirmation-email with already used token returns fail", ctx do
-    %{confirmation: confirmation} = insert(:user, confirmation: %{used?: true})
+    confirmation = insert(:confirmation, used?: true)
+
+    %{confirmation: confirmation} = insert(:user, confirmation: confirmation)
 
     Accounts.consume_token!(confirmation)
 

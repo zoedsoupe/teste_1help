@@ -23,7 +23,7 @@ defmodule Bank.Accounts.User do
   @simple_filters ~w(first_name email cpf cnpj)a
   @simple_sortings ~w(first_name email cpf cnpj inserted_at)a
 
-  @exposed_fields ~w(first_name last_name email)a
+  @exposed_fields ~w(first_name last_name email id)a
 
   use Bank.Schema, expose: true, query: true
 

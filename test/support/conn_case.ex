@@ -17,6 +17,9 @@ defmodule BankWeb.ConnCase do
 
   use ExUnit.CaseTemplate
 
+  import Bank.Factory
+  import Plug.Conn
+
   alias Ecto.Adapters.SQL.Sandbox
 
   using do
@@ -41,7 +44,22 @@ defmodule BankWeb.ConnCase do
       Sandbox.mode(Bank.Repo, {:shared, self()})
     end
 
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    {conn, user} =
+      if tags[:auth] do
+        user = insert(:user, confirmed?: true)
+
+        {_, token, _} = user |> BankWeb.Auth.encode_and_sign()
+
+        conn =
+          Phoenix.ConnTest.build_conn()
+          |> put_req_header("authorization", "Bearer #{token}")
+
+        {conn, user}
+      else
+        {Phoenix.ConnTest.build_conn(), nil}
+      end
+
+    {:ok, conn: conn, user: user}
   end
 
   def get_resp_body(conn), do: conn |> Map.get(:resp_body) |> Jason.decode!()

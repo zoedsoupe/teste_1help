@@ -15,8 +15,8 @@ defmodule Bank.AccountsTest do
       email: "x@gmail.com",
       first_name: "some first_name",
       last_name: "some last_name",
-      password: "12345678910",
-      password_confirmation: "12345678910"
+      new_password: "12345678910",
+      new_password_confirmation: "12345678910"
     }
 
     @update_attrs %{
@@ -26,8 +26,10 @@ defmodule Bank.AccountsTest do
       email: "y@gmail.com",
       first_name: "some updated first_name",
       last_name: "some updated last_name",
-      password: "12345678911",
-      password_confirmation: "12345678911"
+      password: "12345678910",
+      password_confirmation: "12345678910",
+      new_password: "12345678911",
+      new_password_confirmation: "12345678911"
     }
 
     @invalid_attrs %{
@@ -38,7 +40,9 @@ defmodule Bank.AccountsTest do
       first_name: nil,
       last_name: nil,
       password: nil,
-      password_confirmation: nil
+      password_confirmation: nil,
+      new_password: "12345678911",
+      new_password_confirmation: "12345678911"
     }
 
     def user_fixture(attrs \\ %{}) do

@@ -77,7 +77,7 @@ config :bank, Bank.Documenting,
 # Configures Oban
 config :bank, Oban,
   repo: Bank.Repo,
-  prune: {:maxlen, 10_000},
+  plugins: [{Oban.Plugins.Pruner, max_age: 300}],
   queues: [default: 10, events: 50, media: 20, mailing: 50]
 
 # Import environment specific config. This must remain at the bottom

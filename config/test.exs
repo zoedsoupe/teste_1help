@@ -22,4 +22,7 @@ config :bank, BankWeb.Endpoint,
 config :logger, level: :warn
 
 # Oban
-config :bank, Oban, crontab: false, queues: false, prune: :disabled
+config :bank, Oban, crontab: false, queues: false, plugins: false
+
+# Mailing
+config :bank, Bank.Mailing, adapter: Bamboo.TestAdapter
