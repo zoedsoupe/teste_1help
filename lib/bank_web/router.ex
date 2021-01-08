@@ -5,8 +5,40 @@ defmodule BankWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", BankWeb do
+  pipeline :api_as_user do
+    plug :accepts, ["json"]
+    plug BankWeb.Auth.Pipeline
+  end
+
+  scope "/api/v1", BankWeb do
     pipe_through :api
+
+    post "/login", SessionController, :create
+
+    scope "/users" do
+      post "/", UserController, :create
+      post "/recover-password", UserController, :create_recovery
+      post "/resend-confirmation-email", UserController, :resend_confirmation_email
+
+      get "/confirm-email", UserController, :confirm_email
+      get "/recover-password", UserController, :validate_recovery
+
+      put "/recover-password", UserController, :recover_password
+    end
+  end
+
+  scope "/api/v1", BankWeb do
+    pipe_through :api_as_user
+
+    scope "/users" do
+      scope "/" do
+        get "/", UserController, :list
+        get "/:id", UserController, :show
+
+        put "/:id/change-password", UserController, :change_password
+        put "/:id", UserController, :change
+      end
+    end
   end
 
   # Enables LiveDashboard only for development

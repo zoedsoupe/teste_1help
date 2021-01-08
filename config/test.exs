@@ -20,3 +20,9 @@ config :bank, BankWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+# Oban
+config :bank, Oban, crontab: false, queues: false, plugins: false
+
+# Mailing
+config :bank, Bank.Mailing, adapter: Bamboo.TestAdapter

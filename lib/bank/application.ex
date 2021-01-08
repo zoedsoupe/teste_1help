@@ -14,9 +14,10 @@ defmodule Bank.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Bank.PubSub},
       # Start the Endpoint (http/https)
-      BankWeb.Endpoint
+      BankWeb.Endpoint,
       # Start a worker by calling: Bank.Worker.start_link(arg)
       # {Bank.Worker, arg}
+      {Oban, Application.get_env(:bank, Oban)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
