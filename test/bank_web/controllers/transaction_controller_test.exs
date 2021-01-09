@@ -40,19 +40,15 @@ defmodule BankWeb.TransactionControllerTest do
       %{"message" => message, "data" => transaction} =
         conn |> Map.get(:resp_body) |> Jason.decode!()
 
-      sender = Accounts.get_user!(sender.id)
-      recipient = Accounts.get_user!(recipient.id)
+      %{balance: sender_balance} = Accounts.get_user!(sender.id)
+      %{balance: recipient_balance} = Accounts.get_user!(recipient.id)
 
-      %{"message" => _, "data" => %{"balance" => sender_balance}} =
-        ctx.conn |> get("/api/v1/users/#{sender.id}/balance") |> get_resp_body()
-
-      %{"message" => _, "data" => %{"balance" => recipient_balance}} =
-        ctx.conn |> get("/api/v1/users/#{recipient.id}/balance") |> get_resp_body()
+      transaction_value = round(@valid_attrs.amount * 100)
 
       assert conn.status == 201
 
-      assert 50_000 - round(sender_balance * 100) == 50_000 - sender.balance
-      assert 50_000 + round(recipient_balance * 100) == 50_000 + recipient.balance
+      assert sender_balance == sender.balance - transaction_value
+      assert recipient_balance == recipient.balance + transaction_value
 
       assert message == "transferred"
       assert transaction["sender_id"] == sender.id
@@ -125,10 +121,22 @@ defmodule BankWeb.TransactionControllerTest do
     end
 
     @tag auth: true
-    test "GET /transactions returns all transactions", ctx do
-      transactions = insert_list(10, :transaction)
+    test "GET /transactions returns all transactions given a initial and a final date",
+         ctx do
+      insert_list(14, :transaction, processing_date: ~N|2018-02-01 12:12:12|)
+      insert_list(10, :transaction, processing_date: ~N|2022-02-01 12:12:12|)
 
-      conn = ctx.conn |> get("/api/v1/transactions") |> doc("List all transactions")
+      transactions =
+        insert_list(3, :transaction, processing_date: ~N|2020-03-04 12:12:12|) ++
+          insert_list(5, :transaction, processing_date: ~N|2021-01-01 12:12:12|)
+
+      conn =
+        ctx.conn
+        |> get("/api/v1/transactions", %{
+          initial_date: "2020-02-01T12:12:12",
+          final_date: "2021-02-01T12:12:12"
+        })
+        |> doc("List all transactions of logged in user given a intial and final date")
 
       %{"message" => message, "data" => found_transactions} = conn |> get_resp_body()
 
@@ -156,20 +164,14 @@ defmodule BankWeb.TransactionControllerTest do
 
       %{"message" => message} = conn |> get_resp_body()
 
-      sender = Accounts.get_user!(sender.id)
-      recipient = Accounts.get_user!(recipient.id)
-
-      %{"message" => _, "data" => %{"balance" => sender_balance}} =
-        ctx.conn |> get("/api/v1/users/#{sender.id}/balance") |> get_resp_body()
-
-      %{"message" => _, "data" => %{"balance" => recipient_balance}} =
-        ctx.conn |> get("/api/v1/users/#{recipient.id}/balance") |> get_resp_body()
+      %{balance: sender_balance} = Accounts.get_user!(sender.id)
+      %{balance: recipient_balance} = Accounts.get_user!(recipient.id)
 
       assert conn.status == 200
 
       assert message == "chargebacked"
-      assert round(sender_balance * 100) == 50_000
-      assert round(recipient_balance * 100) == 50_000
+      assert sender_balance == 50_000
+      assert recipient_balance == 50_000
     end
   end
 end

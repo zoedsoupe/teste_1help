@@ -137,11 +137,31 @@ defmodule BankWeb.UserControllerTest do
     end
 
     @tag auth: true
-    test "GET /users/:user_id/balance returns current balance", ctx do
+    test "GET /users returns info about current user", ctx do
+      user = ctx.user
+
       conn =
         ctx.conn
-        |> get("/api/v1/users/#{ctx.user.id}/balance")
-        |> doc("Get user current balance", on_nil: [user_id: :error])
+        |> get("/api/v1/users")
+        |> doc("Get logged in user info")
+
+      %{"message" => message, "data" => found_user} = conn |> get_resp_body()
+
+      assert conn.status == 200
+      assert message == "found"
+
+      assert user.first_name == found_user["first_name"]
+      assert user.last_name == found_user["last_name"]
+      assert user.email == found_user["email"]
+      assert user.mobile == found_user["mobile"]
+    end
+
+    @tag auth: true
+    test "GET /users/balance returns current balance", ctx do
+      conn =
+        ctx.conn
+        |> get("/api/v1/users/balance")
+        |> doc("Get logged in user balance")
 
       %{"message" => message, "data" => data} = conn |> get_resp_body()
 
@@ -151,11 +171,11 @@ defmodule BankWeb.UserControllerTest do
     end
 
     @tag auth: true
-    test "PUT /users/:id with valid data updates the user", ctx do
+    test "PUT /users with valid data updates the user", ctx do
       %{id: id, password_hash: hash} = ctx.user
 
       conn =
-        put(ctx.conn, "/api/v1/users/#{id}", @updated_attrs)
+        put(ctx.conn, "/api/v1/users/", @updated_attrs)
         |> doc(
           "Basic user edition that they can do to themself",
           field_trans: %{email: "new@email.com"}
@@ -180,10 +200,8 @@ defmodule BankWeb.UserControllerTest do
   end
 
   @tag auth: true
-  test "PUT /users/:id with invalid data returns error changeset", ctx do
-    %{id: user_id} = ctx.user
-
-    conn = put(ctx.conn, "/api/v1/users/#{user_id}", @invalid_attrs)
+  test "PUT /users with invalid data returns error changeset", ctx do
+    conn = put(ctx.conn, "/api/v1/users/", @invalid_attrs)
 
     %{"details" => errors} = conn |> get_resp_body()
 
@@ -196,19 +214,19 @@ defmodule BankWeb.UserControllerTest do
   end
 
   @tag auth: true
-  test "PUT /users/:id/change-password changes their password", ctx do
+  test "PUT /users/change-password changes their password", ctx do
     user = ctx.user
 
     conn =
       ctx.conn
-      |> put("/api/v1/users/#{user.id}/change-password", %{
+      |> put("/api/v1/users/change-password", %{
         password: "12345678910",
         password_confirmation: "12345678910",
         new_password: @updated_attrs.new_password,
         new_password_confirmation: @updated_attrs.new_password_confirmation
       })
       |> doc(
-        "Changes user password",
+        "Changes logged in user password",
         on_nil: [
           password: :error,
           password_confirmation: :error,
@@ -231,7 +249,7 @@ defmodule BankWeb.UserControllerTest do
       })
   end
 
-  test "PUT /users/:id/change-password with wrong current pass returns fail", ctx do
+  test "PUT /users/change-password with wrong current pass returns fail", ctx do
     # Should explicitelly create user to be able to give it a password
     user = insert(:user, confirmed?: true)
 
@@ -240,7 +258,7 @@ defmodule BankWeb.UserControllerTest do
     conn =
       ctx.conn
       |> put_req_header("authorization", "Bearer #{token}")
-      |> put("/api/v1/users/#{user.id}/change-password", %{
+      |> put("/api/v1/users/change-password", %{
         password: "wrongpass123",
         password_confirmation: "wrongpass123",
         new_password: "Newpass321",

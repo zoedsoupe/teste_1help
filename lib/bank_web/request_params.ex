@@ -55,6 +55,7 @@ defmodule BankWeb.RequestParams do
         @__accepted_params__
         |> Keyword.get(action)
         |> case do
+          :no_param -> %{conn | params: %{}}
           nil -> conn
           list -> %{conn | params: params |> Map.take(list |> Enum.map(&Atom.to_string/1))}
         end
@@ -87,6 +88,9 @@ defmodule BankWeb.RequestParams do
 
       nil ->
         raise "You must define @accepts before #{name}/2 to protect the database from undesired params"
+
+      :no_param ->
+        :no_param
 
       value ->
         raise "@accepts must be from type [atom()], or :any if params are not to be filtered, got: #{

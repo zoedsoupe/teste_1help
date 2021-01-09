@@ -3,6 +3,10 @@ defmodule Bank.Common do
   Common functions for the application
   """
 
+  def filter_map(map) do
+    :maps.filter(fn _, v -> !is_nil(v) end, map)
+  end
+
   def merge_from_child(parent, child, keys) do
     parent
     |> Map.delete(child)

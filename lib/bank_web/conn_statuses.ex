@@ -24,6 +24,7 @@ defmodule BankWeb.ConnStatuses do
     {403, :forbidden},
     {403, :already_confirmed_email},
     {422, :no_user_id},
+    {422, :parse_date_error},
     {422, :no_transaction_id},
     {422, :form_error},
     {422, :param_error},
