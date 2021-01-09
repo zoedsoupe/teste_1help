@@ -8,6 +8,7 @@ defmodule BankWeb.UserController do
   alias Bank.{Accounts, Changeset, Repo}
   alias Bank.Accounts.Jobs.{ConfirmationEmail, RecoveryEmail, WelcomeEmail}
   alias Bank.Accounts.User
+  alias BankWeb.Auth
 
   import Bank.Common
 
@@ -26,6 +27,7 @@ defmodule BankWeb.UserController do
         fields =
           user
           |> Map.take(User.exposed_fields())
+          |> filter_map()
 
         %{data: fields}
         |> Map.put(:message, :created)
@@ -54,15 +56,19 @@ defmodule BankWeb.UserController do
     end
   end
 
-  @accepts ~w(user_id)a
-  def show(_conn, %{"user_id" => id}) do
-    id
+  @accepts :no_param
+  def show(conn, _params) do
+    conn
+    |> Auth.get_user_id()
     |> Accounts.get_user()
     |> case do
       {:ok, user} ->
-        user
-        |> Map.take(User.exposed_fields())
-        |> Map.new(fn data -> {:data, data} end)
+        fields =
+          user
+          |> Map.take(User.exposed_fields())
+          |> filter_map()
+
+        %{data: fields}
         |> Map.put(:message, :found)
         |> create_response()
 
@@ -71,11 +77,10 @@ defmodule BankWeb.UserController do
     end
   end
 
-  def show(_conn, _params), do: {:error, :no_user_id}
-
-  @accepts ~w(user_id)a
-  def balance(_conn, %{"user_id" => user_id}) do
-    user_id
+  @accepts :no_param
+  def balance(conn, _params) do
+    conn
+    |> Auth.get_user_id()
     |> Accounts.get_user()
     |> case do
       {:ok, user} ->
@@ -93,28 +98,15 @@ defmodule BankWeb.UserController do
     end
   end
 
-  def balance(_conn, _params), do: {:error, :not_found}
-
-  @accepts ~w(first_name email cpf cnpj)a
-  def list(_conn, params) do
-    users =
-      params
-      |> map_to_keyword()
-      |> Accounts.list_users()
-      |> Enum.map(&Map.take(&1, User.exposed_fields()))
-
-    %{data: users}
-    |> Map.put(:message, :ok)
-    |> create_response()
-  end
-
-  @accepts ~w(user_id first_name last_name email cpf cnpj new_password new_password_confirmation)a
-  def change(_conn, params) do
-    with {:ok, user} <- Accounts.get_user(params["user_id"]),
+  @accepts ~w(first_name last_name email)a
+  def change(conn, params) do
+    with user_id <- Auth.get_user_id(conn),
+         {:ok, user} <- Accounts.get_user(user_id),
          {:ok, user} <- Accounts.update_user(user, params) do
       fields =
         user
         |> Map.take(User.exposed_fields())
+        |> filter_map()
 
       %{data: fields}
       |> Map.put(:message, :updated)
@@ -144,9 +136,10 @@ defmodule BankWeb.UserController do
 
   def confirm_email(_conn, _params), do: {:error, :no_token}
 
-  @accepts ~w(user_id password password_confirmation new_password new_password_confirmation)a
-  def change_password(_conn, params) do
-    with {:ok, user} <- Accounts.get_user(params["user_id"]),
+  @accepts ~w(password password_confirmation new_password new_password_confirmation)a
+  def change_password(conn, params) do
+    with user_id <- Auth.get_user_id(conn),
+         {:ok, user} <- Accounts.get_user(user_id),
          {:ok, _} <-
            user |> Accounts.update_user(params, [:check_password, :set_password]) do
       create_response(%{message: :password_changed})
@@ -188,6 +181,7 @@ defmodule BankWeb.UserController do
           |> Repo.preload(:user)
           |> Map.get(:user)
           |> Map.take(User.exposed_fields())
+          |> filter_map()
 
         %{data: fields}
         |> Map.put(:message, :valid)
