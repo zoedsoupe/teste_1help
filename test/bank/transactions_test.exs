@@ -8,8 +8,7 @@ defmodule Bank.TransactionsTest do
 
   describe "transactions" do
     @valid_attrs %{
-      amount: 12.21,
-      processing_date: ~N|2021-02-12 13:13:13|
+      amount: 12.21
     }
 
     @invalid_attrs %{
@@ -41,7 +40,6 @@ defmodule Bank.TransactionsTest do
       assert found_transaction.sender_id == transaction.sender_id
       assert found_transaction.recipient_id == transaction.recipient_id
       assert found_transaction.value == transaction.value
-      assert found_transaction.processing_date == transaction.processing_date
     end
 
     test "create_transaction/1 with valid data creates a transaction" do
@@ -55,7 +53,6 @@ defmodule Bank.TransactionsTest do
       assert transaction.sender_id == sender.id
       assert transaction.recipient_id == recipient.id
       assert transaction.value == round(@valid_attrs.amount * 100)
-      assert transaction.processing_date == @valid_attrs.processing_date
     end
 
     test "create_transaction/1 with invalid data returns error changeset" do

@@ -5,11 +5,11 @@ defmodule Bank.Transactions.Transaction do
 
   use Bank.Changeset, command: true
 
-  @fields ~w(sender_id recipient_id amount processing_date)a
+  @fields ~w(sender_id recipient_id amount)a
 
   @required_fields @fields
 
-  @exposed_fields ~w(sender_id recipient_id processing_date)a
+  @exposed_fields ~w(sender_id recipient_id processing_date value id)a
 
   @simple_filters ~w(sender_id recipient_id id processing_date)a
   @simple_sortings ~w(sender_id recipient_id id processing_date inserted_at)a
@@ -32,6 +32,21 @@ defmodule Bank.Transactions.Transaction do
     |> cast(attrs, @fields)
     |> validate_required(@required_fields)
     |> maybe_execute_command(commands, :save_as_integer)
+    |> maybe_execute_command(commands, :set_process_date)
+  end
+
+  defp execute_command(changeset, :set_process_date) do
+    case changeset do
+      %Ecto.Changeset{valid?: true} ->
+        put_change(
+          changeset,
+          :processing_date,
+          NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+        )
+
+      invalid_changeset ->
+        invalid_changeset
+    end
   end
 
   defp execute_command(changeset, :save_as_integer) do

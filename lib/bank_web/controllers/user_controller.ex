@@ -54,8 +54,8 @@ defmodule BankWeb.UserController do
     end
   end
 
-  @accepts ~w(id)a
-  def show(_conn, %{"id" => id}) do
+  @accepts ~w(user_id)a
+  def show(_conn, %{"user_id" => id}) do
     id
     |> Accounts.get_user()
     |> case do
@@ -71,7 +71,29 @@ defmodule BankWeb.UserController do
     end
   end
 
-  def show(_conn, _params), do: {:error, :no_id}
+  def show(_conn, _params), do: {:error, :no_user_id}
+
+  @accepts ~w(user_id)a
+  def balance(_conn, %{"user_id" => user_id}) do
+    user_id
+    |> Accounts.get_user()
+    |> case do
+      {:ok, user} ->
+        field =
+          user
+          |> Map.take([:balance])
+          |> Map.update(:balance, :no_balance, fn old -> old / 100 end)
+
+        %{data: field}
+        |> Map.put(:message, :found)
+        |> create_response()
+
+      error ->
+        error
+    end
+  end
+
+  def balance(_conn, _params), do: {:error, :not_found}
 
   @accepts ~w(first_name email cpf cnpj)a
   def list(_conn, params) do
@@ -86,9 +108,9 @@ defmodule BankWeb.UserController do
     |> create_response()
   end
 
-  @accepts ~w(id first_name last_name email cpf cnpj new_password new_password_confirmation)a
+  @accepts ~w(user_id first_name last_name email cpf cnpj new_password new_password_confirmation)a
   def change(_conn, params) do
-    with {:ok, user} <- Accounts.get_user(params["id"]),
+    with {:ok, user} <- Accounts.get_user(params["user_id"]),
          {:ok, user} <- Accounts.update_user(user, params) do
       fields =
         user
@@ -122,9 +144,9 @@ defmodule BankWeb.UserController do
 
   def confirm_email(_conn, _params), do: {:error, :no_token}
 
-  @accepts ~w(id password password_confirmation new_password new_password_confirmation)a
+  @accepts ~w(user_id password password_confirmation new_password new_password_confirmation)a
   def change_password(_conn, params) do
-    with {:ok, user} <- Accounts.get_user(params["id"]),
+    with {:ok, user} <- Accounts.get_user(params["user_id"]),
          {:ok, _} <-
            user |> Accounts.update_user(params, [:check_password, :set_password]) do
       create_response(%{message: :password_changed})
