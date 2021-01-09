@@ -5,10 +5,9 @@ defmodule BankWeb.TransactionController do
 
   use BankWeb, :controller
 
-  import Bank.Common
-
   alias Bank.Transactions.Transaction
   alias Bank.{Accounts, Changeset, Transactions}
+  alias BankWeb.Auth
 
   action_fallback BankWeb.FallbackController
 
@@ -59,19 +58,34 @@ defmodule BankWeb.TransactionController do
 
   def show(_conn, _params), do: {:error, :no_transaction_id}
 
-  @accepts ~w(processing_date)a
-  def list(_conn, params) do
-    transactions =
-      params
-      |> map_to_keyword()
-      |> Transactions.list_transactions()
-      |> Enum.map(&Map.take(&1, Transaction.exposed_fields()))
+  @accepts ~w(initial_date final_date)a
+  def list(conn, params) do
+    conn
+    |> Auth.get_user_id()
+    |> Accounts.get_user()
+    |> case do
+      {:ok, %{id: user_id}} ->
+        try do
+          transactions =
+            [user_id: user_id]
+            |> Transactions.list_transactions()
+            |> Enum.map(&Map.take(&1, Transaction.exposed_fields()))
+            |> Enum.filter(&parse_dates(&1, params["initial_date"], params["final_date"]))
+            |> Enum.sort_by(& &1.processing_date, {:asc, NaiveDateTime})
 
-    response =
-      %{data: transactions}
-      |> Map.put(:message, :ok)
+          response =
+            %{data: transactions}
+            |> Map.put(:message, :ok)
 
-    {:ok, response}
+          {:ok, response}
+        catch
+          error ->
+            error
+        end
+
+      error ->
+        error
+    end
   end
 
   @accepts ~w(transaction_id)a
@@ -91,6 +105,17 @@ defmodule BankWeb.TransactionController do
 
       {:error, changeset} ->
         changeset |> Changeset.default_error_response()
+    end
+  end
+
+  defp parse_dates(%{processing_date: processing_date}, initial_date, final_date) do
+    with {:ok, initial_date} <- NaiveDateTime.from_iso8601(initial_date),
+         {:ok, final_date} <- NaiveDateTime.from_iso8601(final_date) do
+      NaiveDateTime.compare(processing_date, initial_date) in [:gt, :eq] and
+        NaiveDateTime.compare(processing_date, final_date) in [:lt, :eq]
+    else
+      _ ->
+        throw({:error, :parse_date_error})
     end
   end
 end

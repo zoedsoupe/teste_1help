@@ -125,10 +125,22 @@ defmodule BankWeb.TransactionControllerTest do
     end
 
     @tag auth: true
-    test "GET /transactions returns all transactions", ctx do
-      transactions = insert_list(10, :transaction)
+    test "GET /transactions returns all transactions given a initial and a final date",
+         ctx do
+      insert_list(14, :transaction, processing_date: ~N|2018-02-01 12:12:12|)
+      insert_list(10, :transaction, processing_date: ~N|2022-02-01 12:12:12|)
 
-      conn = ctx.conn |> get("/api/v1/transactions") |> doc("List all transactions")
+      transactions =
+        insert_list(3, :transaction, processing_date: ~N|2020-03-04 12:12:12|) ++
+          insert_list(5, :transaction, processing_date: ~N|2021-01-01 12:12:12|)
+
+      conn =
+        ctx.conn
+        |> get("/api/v1/transactions", %{
+          initial_date: "2020-02-01T12:12:12",
+          final_date: "2021-02-01T12:12:12"
+        })
+        |> doc("List all transactions of logged in user given a intial and final date")
 
       %{"message" => message, "data" => found_transactions} = conn |> get_resp_body()
 
