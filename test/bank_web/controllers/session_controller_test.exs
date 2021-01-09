@@ -1,43 +1,57 @@
 defmodule BankWeb.SessionTest do
   use BankWeb.ConnCase, async: true
 
+  use Bank.Documenting
+
   alias Bank.Accounts
 
-  @create_attrs %{
-    email: "mdsp@gmail.com",
-    cpf: "115.966.130-84",
-    mobile: "(22)12345-6789",
-    first_name: "Kirby",
-    last_name: "Josias",
-    new_password: "password12",
-    new_password_confirmation: "password12",
-    confirmed?: true
-  }
+  default_descriptions(%{
+    email: "User account email",
+    password: "Current password, required to access this action",
+    password_confirmation: "Current password confirmation"
+  })
 
-  @login %{
-    email: "mdsp@gmail.com",
-    password: "password12",
-    password_confirmation: "password12"
-  }
-
-  @wrong_password %{
-    email: "mdsp@gmail.com",
-    password: "password1234",
-    password_confirmation: "password1234"
-  }
-
-  @user_not_exists %{
-    email: "mario@gmail.com",
-    password: "password12",
-    password_confirmation: "password12"
-  }
-
-  def fixture(:user) do
-    {:ok, user} = Accounts.create_user(@create_attrs)
-    user
-  end
+  doc_field_transformations(%{
+    email: "mdsp@server.com",
+    password: "Somepass123",
+    password_confirmation: "Somepass123"
+  })
 
   describe "login" do
+    @create_attrs %{
+      email: "mdsp@gmail.com",
+      cpf: "115.966.130-84",
+      mobile: "(22)12345-6789",
+      first_name: "Kirby",
+      last_name: "Josias",
+      new_password: "password12",
+      new_password_confirmation: "password12",
+      confirmed?: true
+    }
+
+    @login %{
+      email: "mdsp@gmail.com",
+      password: "password12",
+      password_confirmation: "password12"
+    }
+
+    @wrong_password %{
+      email: "mdsp@gmail.com",
+      password: "password1234",
+      password_confirmation: "password1234"
+    }
+
+    @user_not_exists %{
+      email: "mario@gmail.com",
+      password: "password12",
+      password_confirmation: "password12"
+    }
+
+    def fixture(:user) do
+      {:ok, user} = Accounts.create_user(@create_attrs)
+      user
+    end
+
     setup [:create_user]
 
     test "login with a valid data", %{conn: conn} do

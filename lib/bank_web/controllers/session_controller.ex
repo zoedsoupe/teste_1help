@@ -13,7 +13,7 @@ defmodule BankWeb.SessionController do
   @spec create(Plug.Conn.t(), map()) :: {:ok, map()} | {:error, any()}
   def create(_conn, params) do
     case Auth.login(params) do
-      {:ok, data} -> {:ok, %{message: :login_success, data: data}}
+      {:ok, data} -> {:ok, %{message: :login_success, data: %{token: data}}}
       error -> error
     end
   end

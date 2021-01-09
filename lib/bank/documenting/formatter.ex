@@ -7,9 +7,9 @@ defmodule Bank.Documenting.Formatter do
 
   alias Bank.Documenting.Cache
 
-  @api_name "Kirby Project"
+  @api_name "Bank"
   @result_file Application.compile_env(:bank, Bank.Documenting)[:result_file_path] ||
-                 raise("A file path must be defined for documentation")
+                 raise("A file path must be defined")
 
   def init(_config) do
     {:ok, nil}
