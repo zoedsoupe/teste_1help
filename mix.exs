@@ -50,7 +50,7 @@ defmodule Bank.MixProject do
       {:argon2_elixir, "~> 2.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
-      {:git_hooks, "~> 0.5.0", only: [:test, :dev], runtime: false}
+      {:git_hooks, "~> 0.5.0", only: [:dev], runtime: false}
     ]
   end
 
