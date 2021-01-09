@@ -40,19 +40,15 @@ defmodule BankWeb.TransactionControllerTest do
       %{"message" => message, "data" => transaction} =
         conn |> Map.get(:resp_body) |> Jason.decode!()
 
-      sender = Accounts.get_user!(sender.id)
-      recipient = Accounts.get_user!(recipient.id)
+      %{balance: sender_balance} = Accounts.get_user!(sender.id)
+      %{balance: recipient_balance} = Accounts.get_user!(recipient.id)
 
-      %{"message" => _, "data" => %{"balance" => sender_balance}} =
-        ctx.conn |> get("/api/v1/users/#{sender.id}/balance") |> get_resp_body()
-
-      %{"message" => _, "data" => %{"balance" => recipient_balance}} =
-        ctx.conn |> get("/api/v1/users/#{recipient.id}/balance") |> get_resp_body()
+      transaction_value = round(@valid_attrs.amount * 100)
 
       assert conn.status == 201
 
-      assert 50_000 - round(sender_balance * 100) == 50_000 - sender.balance
-      assert 50_000 + round(recipient_balance * 100) == 50_000 + recipient.balance
+      assert sender_balance == sender.balance - transaction_value
+      assert recipient_balance == recipient.balance + transaction_value
 
       assert message == "transferred"
       assert transaction["sender_id"] == sender.id
@@ -168,20 +164,14 @@ defmodule BankWeb.TransactionControllerTest do
 
       %{"message" => message} = conn |> get_resp_body()
 
-      sender = Accounts.get_user!(sender.id)
-      recipient = Accounts.get_user!(recipient.id)
-
-      %{"message" => _, "data" => %{"balance" => sender_balance}} =
-        ctx.conn |> get("/api/v1/users/#{sender.id}/balance") |> get_resp_body()
-
-      %{"message" => _, "data" => %{"balance" => recipient_balance}} =
-        ctx.conn |> get("/api/v1/users/#{recipient.id}/balance") |> get_resp_body()
+      %{balance: sender_balance} = Accounts.get_user!(sender.id)
+      %{balance: recipient_balance} = Accounts.get_user!(recipient.id)
 
       assert conn.status == 200
 
       assert message == "chargebacked"
-      assert round(sender_balance * 100) == 50_000
-      assert round(recipient_balance * 100) == 50_000
+      assert sender_balance == 50_000
+      assert recipient_balance == 50_000
     end
   end
 end
