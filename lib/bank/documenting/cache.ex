@@ -73,8 +73,15 @@ defmodule Bank.Documenting.Cache do
     module
     |> Module.get_attribute(:__doc_context__)
     |> case do
-      nil -> module |> Module.split() |> List.last() |> String.replace("Test", "")
-      context when is_binary(context) -> context
+      nil ->
+        module
+        |> Module.split()
+        |> List.last()
+        |> String.replace("Test", "")
+        |> String.replace("Controller", "")
+
+      context when is_binary(context) ->
+        context
     end
   end
 
@@ -112,8 +119,11 @@ defmodule Bank.Documenting.Cache do
     module
     |> Module.get_attribute(:__doc_controller__)
     |> case do
-      nil -> :"Elixir.BankWeb.#{get_context(module)}Controller"
-      controller when is_atom(controller) -> controller
+      nil ->
+        :"Elixir.BankWeb.#{get_context(module)}Controller"
+
+      controller when is_atom(controller) ->
+        controller
     end
   end
 
