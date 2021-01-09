@@ -28,7 +28,7 @@ config :logger, :console,
 config :phoenix, :json_library, Jason
 
 # Git Hooks
-if Mix.env() != :prod do
+if Mix.env() == :dev do
   config :git_hooks,
     auto_install: true,
     verbose: true,
