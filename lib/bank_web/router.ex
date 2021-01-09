@@ -33,10 +33,22 @@ defmodule BankWeb.Router do
     scope "/users" do
       scope "/" do
         get "/", UserController, :list
-        get "/:id", UserController, :show
+        get "/:user_id", UserController, :show
+        get "/:user_id/balance", UserController, :balance
 
-        put "/:id/change-password", UserController, :change_password
-        put "/:id", UserController, :change
+        put "/:user_id/change-password", UserController, :change_password
+        put "/:user_id", UserController, :change
+      end
+    end
+
+    scope "/transactions" do
+      scope "/" do
+        get "/", TransactionController, :list
+        get "/:transaction_id", TransactionController, :show
+
+        post "/", TransactionController, :create
+
+        delete "/:transaction_id", TransactionController, :delete
       end
     end
   end
