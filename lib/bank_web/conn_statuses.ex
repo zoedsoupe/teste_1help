@@ -8,12 +8,13 @@ defmodule BankWeb.ConnStatuses do
 
   @success_messages [
     {201, :created},
-    {201, :invited}
+    {201, :transferred}
   ]
 
   @error_messages [
     {401, :already_created_account},
     {401, :already_used_token},
+    {401, :sender_or_recipient_account_not_confirmed},
     {401, :email_not_confirmed},
     {401, :email_not_registered},
     {401, :expired_token},
@@ -22,9 +23,11 @@ defmodule BankWeb.ConnStatuses do
     {401, :no_token},
     {403, :forbidden},
     {403, :already_confirmed_email},
+    {422, :no_user_id},
+    {422, :no_transaction_id},
     {422, :form_error},
     {422, :param_error},
-    {422, :user_not_subscribed}
+    {422, :insufficient_balance}
   ]
 
   @success_codes @success_messages |> Enum.map(fn {k, v} -> {v, k} end) |> Map.new()

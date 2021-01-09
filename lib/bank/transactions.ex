@@ -37,7 +37,7 @@ defmodule Bank.Transactions do
   """
   def create_transaction(attrs) do
     %Transaction{}
-    |> Transaction.changeset(attrs, [:save_as_integer])
+    |> Transaction.changeset(attrs, [:save_as_integer, :set_process_date])
     |> Repo.insert()
   end
 

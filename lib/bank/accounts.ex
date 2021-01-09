@@ -43,6 +43,8 @@ defmodule Bank.Accounts do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  def get_user(nil), do: {:error, :not_found}
+
   def get_user(id) do
     Repo.get(User, id)
     |> case do
@@ -192,8 +194,12 @@ defmodule Bank.Accounts do
   def withdraw(id, [{:amount, amount}]) do
     case get_user(id) do
       {:ok, user} ->
-        user
-        |> update_user(%{balance: user.balance - amount})
+        if user.balance < amount do
+          {:error, :insufficient_balance}
+        else
+          user
+          |> update_user(%{balance: user.balance - amount})
+        end
 
       error ->
         error
