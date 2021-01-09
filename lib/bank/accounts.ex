@@ -43,6 +43,8 @@ defmodule Bank.Accounts do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  def get_user(nil), do: {:error, :not_found}
+
   def get_user(id) do
     Repo.get(User, id)
     |> case do
@@ -184,5 +186,37 @@ defmodule Bank.Accounts do
     resource
     |> Changeset.change(%{used?: true})
     |> Repo.update!()
+  end
+
+  @doc """
+  Decrease user balance for transaction
+  """
+  def withdraw(id, [{:amount, amount}]) do
+    case get_user(id) do
+      {:ok, user} ->
+        if user.balance < amount do
+          {:error, :insufficient_balance}
+        else
+          user
+          |> update_user(%{balance: user.balance - amount})
+        end
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Increase user balance for transaction
+  """
+  def deposit(id, [{:amount, amount}]) do
+    case get_user(id) do
+      {:ok, user} ->
+        user
+        |> update_user(%{balance: user.balance + amount})
+
+      error ->
+        error
+    end
   end
 end

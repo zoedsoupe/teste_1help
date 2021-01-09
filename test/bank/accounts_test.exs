@@ -59,7 +59,7 @@ defmodule Bank.AccountsTest do
 
       found_users = Accounts.list_users()
 
-      assert is_list(Accounts.list_users(found_users))
+      assert is_list(found_users)
       assert length(users) == length(found_users)
     end
 

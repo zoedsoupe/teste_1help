@@ -102,7 +102,7 @@ defmodule BankWeb.UserControllerTest do
           ]
         )
 
-      %{"message" => message, "data" => user} = conn |> Map.get(:resp_body) |> Jason.decode!()
+      %{"message" => message, "data" => user} = conn |> get_resp_body()
 
       ConfirmationEmail.perform(%{"id" => user["id"]})
 
@@ -126,7 +126,7 @@ defmodule BankWeb.UserControllerTest do
     test "POST /users with invalid data returns error changeset", ctx do
       conn = post(ctx.conn, "/api/v1/users", @invalid_attrs)
 
-      %{"details" => details} = conn |> Map.get(:resp_body) |> Jason.decode!()
+      %{"details" => details} = conn |> get_resp_body()
 
       assert conn.status == 422
       assert details["first_name"] == ["can't be blank"]
@@ -134,6 +134,20 @@ defmodule BankWeb.UserControllerTest do
       assert details["email"] == ["can't be blank"]
 
       assert_no_emails_delivered()
+    end
+
+    @tag auth: true
+    test "GET /users/:user_id/balance returns current balance", ctx do
+      conn =
+        ctx.conn
+        |> get("/api/v1/users/#{ctx.user.id}/balance")
+        |> doc("Get user current balance", on_nil: [user_id: :error])
+
+      %{"message" => message, "data" => data} = conn |> get_resp_body()
+
+      assert conn.status == 200
+      assert message == "found"
+      assert data["balance"] == 0
     end
 
     @tag auth: true
@@ -171,7 +185,7 @@ defmodule BankWeb.UserControllerTest do
 
     conn = put(ctx.conn, "/api/v1/users/#{user_id}", @invalid_attrs)
 
-    %{"details" => errors} = conn |> Map.get(:resp_body) |> Jason.decode!()
+    %{"details" => errors} = conn |> get_resp_body()
 
     assert conn.status == 422
 
@@ -387,7 +401,7 @@ defmodule BankWeb.UserControllerTest do
     conn = post(ctx.conn, "/api/v1/users/resend-confirmation-email", %{email: "asdf@email.com"})
 
     assert conn.status == 401
-    assert "email_not_registered" == (conn |> Map.get(:resp_body) |> Jason.decode!())["message"]
+    assert "email_not_registered" == (conn |> get_resp_body())["message"]
     refute_enqueued(worker: ConfirmationEmail)
     assert_no_emails_delivered()
   end
@@ -400,7 +414,7 @@ defmodule BankWeb.UserControllerTest do
     assert conn.status == 403
 
     assert "already_confirmed_email" ==
-             (conn |> Map.get(:resp_body) |> Jason.decode!())["message"]
+             (conn |> get_resp_body())["message"]
 
     refute_enqueued(worker: ConfirmationEmail)
     assert_no_emails_delivered()
