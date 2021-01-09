@@ -40,6 +40,9 @@ defmodule Bank.Documenting.Formatter do
   defp write_intro({topics, file}) do
     file
     |> puts("# **#{@api_name}**")
+    |> puts(
+      "![build](https://github.com/Mdsp9070/teste_1help/workflows/build/badge.svg?branch=main)"
+    )
 
     {topics, file}
   end
