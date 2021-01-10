@@ -11,10 +11,16 @@ defmodule BankWeb.TransactionControllerTest do
     sender_id: "The sender's unique identification",
     recipient_id: "The recipient's unique identification",
     transaction_id: "The transaction's unique identification",
-    amount: "How much will be transferred"
+    amount: "How much will be transferred",
+    processing_date: "The date and time when the transaction was made"
   })
 
-  doc_field_transformations(%{sender_id: "UUID", recipient_id: "UUID", amount: "865.89"})
+  doc_field_transformations(%{
+    sender_id: "UUID",
+    recipient_id: "UUID",
+    amount: "865.89",
+    processing_date: "DATETIME"
+  })
 
   describe "transactions" do
     @valid_attrs %{
