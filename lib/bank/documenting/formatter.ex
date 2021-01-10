@@ -118,8 +118,8 @@ defmodule Bank.Documenting.Formatter do
         file
         |> puts("### #{origin |> String.capitalize()} params")
         |> puts("")
-        |> puts("|Name|Description|Required?|Default value|Example|")
-        |> puts("|-|-|-|-|-|")
+        |> puts("|Name|Description|Required?|Example|")
+        |> puts("|-|-|-|-|")
 
         params
         |> Enum.each(fn {k, v} ->
