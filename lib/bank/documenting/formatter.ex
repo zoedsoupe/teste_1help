@@ -144,7 +144,7 @@ defmodule Bank.Documenting.Formatter do
 
   defp put_exemple({file, action}) do
     file
-    |> puts("### Exemple request")
+    |> puts("### Example request")
     |> puts("```")
     |> IO.write("curl #{curl_headers(action)}")
 
