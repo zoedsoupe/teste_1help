@@ -1,0 +1,8 @@
+_build
+deps
+test
+Earthfile
+docker-compose.yml
+.*
+deploy.sh
+README.md

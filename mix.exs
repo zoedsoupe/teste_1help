@@ -34,8 +34,10 @@ defmodule Bank.MixProject do
   defp deps do
     [
       {:bamboo, "~> 1.6"},
-      {:phoenix, "~> 1.5.6"},
+      {:ranch, "~> 1.7.1", override: true},
+      {:phoenix, "~> 1.5.7"},
       {:phoenix_ecto, "~> 4.1"},
+      {:bamboo_smtp, "~> 3.1.0"},
       {:ecto_sql, "~> 3.4"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_live_dashboard, "~> 0.3 or ~> 0.2.9"},

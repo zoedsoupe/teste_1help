@@ -51,10 +51,6 @@ if Mix.env() == :dev do
 end
 
 # Mailing
-config :bank, Bank.Mailing,
-  adapter: Bamboo.LocalAdapter,
-  open_email_in_browser_url: "http://localhost:4000/sent_emails"
-
 config :bank,
   mailing_default_from_name: "Bank Live",
   mailing_default_from_email: "noreply@bank.com"

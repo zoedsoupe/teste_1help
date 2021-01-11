@@ -1,4 +1,7 @@
 # **Bank**
+![build](https://github.com/zoedsoupe/teste_1help/workflows/build/badge.svg?branch=main)
+
+Por favor, leiam o [ASSIGNMENTS.md](https://github.com/zoedsoupe/teste_1help/blob/main/ASSIGNMENTS.md)
 * [Session](#session)
   * [create](#session-create)
 * [Transaction](#transaction)
@@ -8,6 +11,7 @@
   * [delete](#transaction-delete)
 * [User](#user)
   * [create](#user-create)
+  * [show](#user-show)
   * [balance](#user-balance)
   * [change](#user-change)
   * [change_password](#user-change-password)
@@ -24,13 +28,13 @@ Returns token for this api
 * __Path:__ /api/v1/login
 ### Body params
 
-|Name|Description|Required?|Default value|Example|
-|-|-|-|-|-|
+|Name|Description|Required?|Example|
+|-|-|-|-|
 |email|Account email|required||"mdsp@server.com"|
 |password|Account password|required||"Somepass123"|
 |password_confirmation|Current password confirmation|required||"Somepass123"|
 
-### Exemple request
+### Example request
 ```
 curl -H 'Content-type: application/json' \
      -X POST \
@@ -57,13 +61,13 @@ Creates a new Transaction between two accounts
 * __Path:__ /api/v1/transactions
 ### Body params
 
-|Name|Description|Required?|Default value|Example|
-|-|-|-|-|-|
+|Name|Description|Required?|Example|
+|-|-|-|-|
 |amount|How much will be transferred|required||"865.89"|
 |recipient_id|The recipient's unique identification|required||"UUID"|
 |sender_id|The sender's unique identification|required||"UUID"|
 
-### Exemple request
+### Example request
 ```
 curl -H 'Authorization: Bearer VeryLongTokenJIUzUxMiIsInR5' \
      -H 'Content-type: application/json' \
@@ -76,7 +80,7 @@ curl -H 'Authorization: Bearer VeryLongTokenJIUzUxMiIsInR5' \
 {
   "data": {
     "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-    "processing_date": "2021-01-09T21:57:32",
+    "processing_date": "DATETIME",
     "recipient_id": "UUID",
     "sender_id": "UUID",
     "value": 1221
@@ -92,7 +96,7 @@ Get information about existing transaction
 ### Info
 * __Method:__ GET
 * __Path:__ /api/v1/transactions/:transaction_id
-### Exemple request
+### Example request
 ```
 curl -H 'Authorization: Bearer VeryLongTokenJIUzUxMiIsInR5' \
      -X GET \
@@ -103,7 +107,7 @@ curl -H 'Authorization: Bearer VeryLongTokenJIUzUxMiIsInR5' \
 {
   "data": {
     "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-    "processing_date": null,
+    "processing_date": "DATETIME",
     "recipient_id": "UUID",
     "sender_id": "UUID",
     "value": 1200
@@ -115,15 +119,22 @@ curl -H 'Authorization: Bearer VeryLongTokenJIUzUxMiIsInR5' \
 ---
 
 ## list<a id=transaction-list></a>
-List all transactions
+List all transactions of logged in user given a intial and final date
 ### Info
 * __Method:__ GET
 * __Path:__ /api/v1/transactions
-### Exemple request
+### Query params
+
+|Name|Description|Required?|Example|
+|-|-|-|-|
+|final_date|Final date for searching transactions|optional||"DATETIME"|
+|initial_date|Initial date for searching transactions|optional||"DATETIME"|
+
+### Example request
 ```
 curl -H 'Authorization: Bearer VeryLongTokenJIUzUxMiIsInR5' \
      -X GET \
-     'http://localhost:4000/api/v1/transactions'
+     'http://localhost:4000/api/v1/transactions?final_date=DATETIME&initial_date=DATETIME'
 ```
 ### Exemple response
 ```json
@@ -131,70 +142,56 @@ curl -H 'Authorization: Bearer VeryLongTokenJIUzUxMiIsInR5' \
   "data": [
     {
       "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-      "processing_date": null,
+      "processing_date": "DATETIME",
       "recipient_id": "UUID",
       "sender_id": "UUID",
       "value": 1200
     },
     {
       "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-      "processing_date": null,
+      "processing_date": "DATETIME",
       "recipient_id": "UUID",
       "sender_id": "UUID",
       "value": 1200
     },
     {
       "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-      "processing_date": null,
+      "processing_date": "DATETIME",
       "recipient_id": "UUID",
       "sender_id": "UUID",
       "value": 1200
     },
     {
       "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-      "processing_date": null,
+      "processing_date": "DATETIME",
       "recipient_id": "UUID",
       "sender_id": "UUID",
       "value": 1200
     },
     {
       "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-      "processing_date": null,
+      "processing_date": "DATETIME",
       "recipient_id": "UUID",
       "sender_id": "UUID",
       "value": 1200
     },
     {
       "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-      "processing_date": null,
+      "processing_date": "DATETIME",
       "recipient_id": "UUID",
       "sender_id": "UUID",
       "value": 1200
     },
     {
       "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-      "processing_date": null,
+      "processing_date": "DATETIME",
       "recipient_id": "UUID",
       "sender_id": "UUID",
       "value": 1200
     },
     {
       "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-      "processing_date": null,
-      "recipient_id": "UUID",
-      "sender_id": "UUID",
-      "value": 1200
-    },
-    {
-      "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-      "processing_date": null,
-      "recipient_id": "UUID",
-      "sender_id": "UUID",
-      "value": 1200
-    },
-    {
-      "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-      "processing_date": null,
+      "processing_date": "DATETIME",
       "recipient_id": "UUID",
       "sender_id": "UUID",
       "value": 1200
@@ -211,7 +208,7 @@ Chargesback a transaction
 ### Info
 * __Method:__ DELETE
 * __Path:__ /api/v1/transactions/:transaction_id
-### Exemple request
+### Example request
 ```
 curl -H 'Authorization: Bearer VeryLongTokenJIUzUxMiIsInR5' \
      -X DELETE \
@@ -234,8 +231,8 @@ Creates a new account
 * __Path:__ /api/v1/users
 ### Body params
 
-|Name|Description|Required?|Default value|Example|
-|-|-|-|-|-|
+|Name|Description|Required?|Example|
+|-|-|-|-|
 |cnpj|Account CNPJ|required||"123.456.789/0001-12"|
 |email|Account e-mail|required||"valid@email.com"|
 |first_name|First name of the user|required||"some first_name"|
@@ -244,7 +241,7 @@ Creates a new account
 |new_password|New password to be set to that account|required||"NewPass123"|
 |new_password_confirmation|New password confirmation|required||"NewPass123"|
 
-### Exemple request
+### Example request
 ```
 curl -H 'Content-type: application/json' \
      -X POST \
@@ -255,10 +252,12 @@ curl -H 'Content-type: application/json' \
 ```json
 {
   "data": {
+    "cnpj": "123.456.789/0001-12",
     "email": "valid@email.com",
     "first_name": "Some First_name",
     "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-    "last_name": "Some Last_name"
+    "last_name": "Some Last_name",
+    "mobile": "(dd)12345-6789"
   },
   "message": "created"
 }
@@ -266,16 +265,44 @@ curl -H 'Content-type: application/json' \
 
 ---
 
-## balance<a id=user-balance></a>
-Get user current balance
+## show<a id=user-show></a>
+Get logged in user info
 ### Info
 * __Method:__ GET
-* __Path:__ /api/v1/users/:user_id/balance
-### Exemple request
+* __Path:__ /api/v1/users
+### Example request
 ```
 curl -H 'Authorization: Bearer VeryLongTokenJIUzUxMiIsInR5' \
      -X GET \
-     'http://localhost:4000/api/v1/users/cace4a15-9ff9-f251-2dd4-2373760608767b62/balance'
+     'http://localhost:4000/api/v1/users'
+```
+### Exemple response
+```json
+{
+  "data": {
+    "cpf": "123.456.789-10",
+    "email": "valid@email.com",
+    "first_name": "matheus",
+    "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
+    "last_name": "pessanha",
+    "mobile": "(dd)12345-6789"
+  },
+  "message": "found"
+}
+```
+
+---
+
+## balance<a id=user-balance></a>
+Get logged in user balance
+### Info
+* __Method:__ GET
+* __Path:__ /api/v1/users/balance
+### Example request
+```
+curl -H 'Authorization: Bearer VeryLongTokenJIUzUxMiIsInR5' \
+     -X GET \
+     'http://localhost:4000/api/v1/users/balance'
 ```
 ### Exemple response
 ```json
@@ -293,34 +320,33 @@ curl -H 'Authorization: Bearer VeryLongTokenJIUzUxMiIsInR5' \
 Basic user edition that they can do to themself
 ### Info
 * __Method:__ PUT
-* __Path:__ /api/v1/users/:user_id
+* __Path:__ /api/v1/users/
 ### Body params
 
-|Name|Description|Required?|Default value|Example|
-|-|-|-|-|-|
-|cpf|Account CPF|optional||"123.456.789-10"|
+|Name|Description|Required?|Example|
+|-|-|-|-|
 |email|Account e-mail|optional||"new@email.com"|
 |first_name|First name of the user|optional||"some updated first_name"|
 |last_name|Last name of the user|optional||"some updated last_name"|
-|new_password|New password to be set to that account|optional||"NewPass123"|
-|new_password_confirmation|New password confirmation|optional||"NewPass123"|
 
-### Exemple request
+### Example request
 ```
 curl -H 'Authorization: Bearer VeryLongTokenJIUzUxMiIsInR5' \
      -H 'Content-type: application/json' \
      -X PUT \
-     'http://localhost:4000/api/v1/users/cace4a15-9ff9-f251-2dd4-2373760608767b62'  \
-     -d '{"cpf":"123.456.789-10","email":"new@email.com","first_name":"some updated first_name","last_name":"some updated last_name","new_password":"NewPass123","new_password_confirmation":"NewPass123"}'
+     'http://localhost:4000/api/v1/users/'  \
+     -d '{"email":"new@email.com","first_name":"some updated first_name","last_name":"some updated last_name"}'
 ```
 ### Exemple response
 ```json
 {
   "data": {
+    "cpf": "123.456.789-10",
     "email": "new@email.com",
     "first_name": "Some Updated First_name",
     "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-    "last_name": "Some Updated Last_name"
+    "last_name": "Some Updated Last_name",
+    "mobile": "(dd)12345-6789"
   },
   "message": "updated"
 }
@@ -329,25 +355,25 @@ curl -H 'Authorization: Bearer VeryLongTokenJIUzUxMiIsInR5' \
 ---
 
 ## change_password<a id=user-change-password></a>
-Changes user password
+Changes logged in user password
 ### Info
 * __Method:__ PUT
-* __Path:__ /api/v1/users/:user_id/change-password
+* __Path:__ /api/v1/users/change-password
 ### Body params
 
-|Name|Description|Required?|Default value|Example|
-|-|-|-|-|-|
+|Name|Description|Required?|Example|
+|-|-|-|-|
 |new_password|New password to be set to that account|required||"NewPass123!"|
 |new_password_confirmation|New password confirmation|required||"NewPass123!"|
 |password|Current password, required to access this action|required||"Somepass123"|
 |password_confirmation|Current password confirmation|required||"Somepass123"|
 
-### Exemple request
+### Example request
 ```
 curl -H 'Authorization: Bearer VeryLongTokenJIUzUxMiIsInR5' \
      -H 'Content-type: application/json' \
      -X PUT \
-     'http://localhost:4000/api/v1/users/cace4a15-9ff9-f251-2dd4-2373760608767b62/change-password'  \
+     'http://localhost:4000/api/v1/users/change-password'  \
      -d '{"new_password":"NewPass123!","new_password_confirmation":"NewPass123!","password":"Somepass123","password_confirmation":"Somepass123"}'
 ```
 ### Exemple response
@@ -366,11 +392,11 @@ Creates password recovery attempt
 * __Path:__ /api/v1/users/recover-password
 ### Body params
 
-|Name|Description|Required?|Default value|Example|
-|-|-|-|-|-|
+|Name|Description|Required?|Example|
+|-|-|-|-|
 |email|Account e-mail|required||"valid@email.com"|
 
-### Exemple request
+### Example request
 ```
 curl -H 'Content-type: application/json' \
      -X POST \
@@ -393,11 +419,11 @@ Validates token and returns user data if valid
 * __Path:__ /api/v1/users/recover-password
 ### Query params
 
-|Name|Description|Required?|Default value|Example|
-|-|-|-|-|-|
+|Name|Description|Required?|Example|
+|-|-|-|-|
 |token|A token sent by email to authenticate this action|required||"VeryLongToken"|
 
-### Exemple request
+### Example request
 ```
 curl -X GET \
      'http://localhost:4000/api/v1/users/recover-password?token=VeryLongToken'
@@ -406,10 +432,12 @@ curl -X GET \
 ```json
 {
   "data": {
+    "cpf": "123.456.789-10",
     "email": "valid@email.com",
     "first_name": "matheus",
     "id": "87ea5dfc-8b8e-384d-8489-79496e706390b497",
-    "last_name": "pessanha"
+    "last_name": "pessanha",
+    "mobile": "(dd)12345-6789"
   },
   "message": "valid"
 }
@@ -424,13 +452,13 @@ Sets new password for user
 * __Path:__ /api/v1/users/recover-password
 ### Body params
 
-|Name|Description|Required?|Default value|Example|
-|-|-|-|-|-|
+|Name|Description|Required?|Example|
+|-|-|-|-|
 |new_password|New password to be set to that account|required||"NewPass123!"|
 |new_password_confirmation|New password confirmation|required||"NewPass123!"|
 |token|A token sent by email to authenticate this action|required||"VeryLongToken"|
 
-### Exemple request
+### Example request
 ```
 curl -H 'Content-type: application/json' \
      -X PUT \
@@ -453,11 +481,11 @@ Sends new confirmation email
 * __Path:__ /api/v1/users/resend-confirmation-email
 ### Body params
 
-|Name|Description|Required?|Default value|Example|
-|-|-|-|-|-|
+|Name|Description|Required?|Example|
+|-|-|-|-|
 |email|Account e-mail|required||"valid@email.com"|
 
-### Exemple request
+### Example request
 ```
 curl -H 'Content-type: application/json' \
      -X POST \
@@ -480,11 +508,11 @@ Activates the account related to given token
 * __Path:__ /api/v1/users/confirm-email
 ### Query params
 
-|Name|Description|Required?|Default value|Example|
-|-|-|-|-|-|
+|Name|Description|Required?|Example|
+|-|-|-|-|
 |token|A token sent by email to authenticate this action|required||"VeryLongToken"|
 
-### Exemple request
+### Example request
 ```
 curl -X GET \
      'http://localhost:4000/api/v1/users/confirm-email?token=VeryLongToken'
