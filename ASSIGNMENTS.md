@@ -37,3 +37,9 @@ prática que meus estudos estão tendo resultados e fico feliz por isso.
 * Acho que eu poderia melhorar na organização dos commits e branches
 * Talvez fosse necessário uma maior cobertura de testes
 * Relizar testes de integração
+
+## Notas finais
+
+A API pode ser acessada por esse endereço: https://bank-szh7fuhjxa-ue.a.run.app
+Entretanto, o serviço de emails não está funcionando em produção, por isso, peço
+para que executem localmente, para ter a experiência completa.
