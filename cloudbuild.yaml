@@ -1,0 +1,18 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "gcr.io/$PROJECT_ID/bank:latest",
+        "--build-arg",
+        "MAILGUN_API_KEY=${_MAILGUN_API_KEY}",
+        "--build-arg",
+        "MAILGUN_DOMAIN=${_MAILGUN_DOMAIN}",
+        ".",
+      ]
+images:
+  - "gcr.io/$PROJECT_ID/bank:latest"
+substitutions:
+  _MAILGUN_DOMAIN: "onlysubstitutethis"
+  _MAILGUN_API_KEY: "ah, this too"

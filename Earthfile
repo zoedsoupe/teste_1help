@@ -36,6 +36,21 @@ unit-test:
     RUN mix do ecto.setup, test
   END
 
+release:
+  FROM +setup-base
+
+  ENV MIX_ENV=prod
+  COPY mix.exs .
+  COPY mix.lock .
+  RUN mix local.rebar --force
+  RUN mix local.hex --force
+  RUN mix do deps.get, deps.compile
+  COPY --dir config lib priv ./
+
+  RUN mix release
+
+  SAVE ARTIFACT ./_build/prod/rel AS LOCAL ./rel
+
 setup-base:
    ARG ELIXIR=1.11.2
    ARG OTP=23.1.1
